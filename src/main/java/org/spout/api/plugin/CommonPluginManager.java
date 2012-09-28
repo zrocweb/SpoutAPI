@@ -26,15 +26,6 @@
  */
 package org.spout.api.plugin;
 
-import org.apache.commons.io.FileUtils;
-import org.spout.api.Engine;
-import org.spout.api.event.HandlerList;
-import org.spout.api.exception.InvalidDescriptionFileException;
-import org.spout.api.exception.InvalidPluginException;
-import org.spout.api.exception.UnknownDependencyException;
-import org.spout.api.meta.SpoutMetaPlugin;
-import org.spout.api.plugin.security.CommonSecurityManager;
-
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -51,29 +42,33 @@ import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.FileUtils;
+import org.spout.api.Engine;
+import org.spout.api.event.HandlerList;
+import org.spout.api.exception.InvalidDescriptionFileException;
+import org.spout.api.exception.InvalidPluginException;
+import org.spout.api.exception.UnknownDependencyException;
+import org.spout.api.meta.SpoutMetaPlugin;
+
 public class CommonPluginManager implements PluginManager {
 	private final Engine engine;
-	private final CommonSecurityManager manager;
-	private final double key;
 	private final SpoutMetaPlugin metaPlugin;
 	private final Map<Pattern, PluginLoader> loaders = new HashMap<Pattern, PluginLoader>();
 	private final Map<String, Plugin> names = new HashMap<String, Plugin>();
 	private final List<Plugin> plugins = new ArrayList<Plugin>();
 	private File updateDir;
 
-	public CommonPluginManager(final Engine engine, final CommonSecurityManager manager, final double key) {
+	public CommonPluginManager(final Engine engine) {
 		this.engine = engine;
-		this.manager = manager;
-		this.key = key;
 		this.metaPlugin = new SpoutMetaPlugin(engine);
 	}
 
 	public void registerPluginLoader(Class<? extends PluginLoader> loader) {
 		PluginLoader instance = null;
 		try {
-			Constructor<? extends PluginLoader> constructor = loader.getConstructor(new Class[]{Engine.class, CommonSecurityManager.class, double.class});
+			Constructor<? extends PluginLoader> constructor = loader.getConstructor(new Class[]{Engine.class});
 
-			instance = constructor.newInstance(engine, manager, key);
+			instance = constructor.newInstance(engine);
 		} catch (Exception e) {
 			throw new IllegalArgumentException("Error registering plugin loader!", e);
 		}
@@ -101,7 +96,6 @@ public class CommonPluginManager implements PluginManager {
 	}
 
 	public synchronized Plugin loadPlugin(File paramFile, boolean ignoreSoftDependencies) throws InvalidPluginException, InvalidDescriptionFileException, UnknownDependencyException {
-		boolean locked = manager.lock(key);
 		File update = null;
 
 		if (updateDir != null && updateDir.isDirectory()) {
@@ -110,7 +104,7 @@ public class CommonPluginManager implements PluginManager {
 				try {
 					FileUtils.copyFile(update, paramFile);
 				} catch (IOException e) {
-					safelyLog(Level.SEVERE, new StringBuilder().append("Error copying file '").append(update.getPath()).append("' to its new destination at '").append(paramFile.getPath()).append("': ").append(e.getMessage()).toString(), e);
+					engine.getLogger().log(Level.SEVERE, new StringBuilder().append("Error copying file '").append(update.getPath()).append("' to its new destination at '").append(paramFile.getPath()).append("': ").append(e.getMessage()).toString(), e);
 				}
 				update.delete();
 			}
@@ -136,10 +130,6 @@ public class CommonPluginManager implements PluginManager {
 		if (result != null) {
 			plugins.add(result);
 			names.put(result.getDescription().getName(), result);
-		}
-
-		if (locked) {
-			manager.unlock(key);
 		}
 		return result;
 	}
@@ -179,14 +169,14 @@ public class CommonPluginManager implements PluginManager {
 					iterator.remove();
 				} catch (UnknownDependencyException e) {
 					if (lastPass) {
-						safelyLog(Level.SEVERE, new StringBuilder().append("Unable to load '").append(file.getName()).append("' in directory '").append(paramFile.getPath()).append("': ").append(e.getMessage()).toString(), e);
+						engine.getLogger().log(Level.SEVERE, new StringBuilder().append("Unable to load '").append(file.getName()).append("' in directory '").append(paramFile.getPath()).append("': ").append(e.getMessage()).toString(), e);
 						iterator.remove();
 					}
 				} catch (InvalidDescriptionFileException e) {
-					safelyLog(Level.SEVERE, new StringBuilder().append("Unable to load '").append(file.getName()).append("' in directory '").append(paramFile.getPath()).append("': ").append(e.getMessage()).toString(), e);
+					engine.getLogger().log(Level.SEVERE, new StringBuilder().append("Unable to load '").append(file.getName()).append("' in directory '").append(paramFile.getPath()).append("': ").append(e.getMessage()).toString(), e);
 					iterator.remove();
 				} catch (InvalidPluginException e) {
-					safelyLog(Level.SEVERE, new StringBuilder().append("Unable to load '").append(file.getName()).append("' in directory '").append(paramFile.getPath()).append("': ").append(e.getMessage()).toString(), e);
+					engine.getLogger().log(Level.SEVERE, new StringBuilder().append("Unable to load '").append(file.getName()).append("' in directory '").append(paramFile.getPath()).append("': ").append(e.getMessage()).toString(), e);
 					iterator.remove();
 				}
 
@@ -231,16 +221,11 @@ public class CommonPluginManager implements PluginManager {
 			return;
 		}
 		if (!plugin.isEnabled()) {
-			boolean locked = manager.lock(key);
 
 			try {
 				plugin.getPluginLoader().enablePlugin(plugin);
 			} catch (Exception e) {
-				safelyLog(Level.SEVERE, "An error occurred in the Plugin Loader while enabling plugin '" + plugin.getDescription().getFullName() + "': " + e.getMessage(), e);
-			}
-
-			if (!locked) {
-				manager.unlock(key);
+				engine.getLogger().log(Level.SEVERE, "An error occurred in the Plugin Loader while enabling plugin '" + plugin.getDescription().getFullName() + "': " + e.getMessage(), e);
 			}
 		}
 	}
@@ -251,32 +236,14 @@ public class CommonPluginManager implements PluginManager {
 			return;
 		}
 		if (plugin.isEnabled()) {
-			boolean locked = manager.lock(key);
-
 			try {
 				plugin.getPluginLoader().disablePlugin(plugin);
 				HandlerList.unregisterAll(plugin);
 				engine.getServiceManager().unregisterAll(plugin);
 				engine.getRootCommand().removeChildren(plugin);
 			} catch (Exception e) {
-				safelyLog(Level.SEVERE, "An error occurred in the Plugin Loader while disabling plugin '" + plugin.getDescription().getFullName() + "': " + e.getMessage(), e);
+				engine.getLogger().log(Level.SEVERE, "An error occurred in the Plugin Loader while disabling plugin '" + plugin.getDescription().getFullName() + "': " + e.getMessage(), e);
 			}
-
-			if (!locked) {
-				manager.unlock(key);
-			}
-		}
-	}
-
-	private void safelyLog(Level level, String message, Throwable ex) {
-		boolean relock = false;
-		if (manager.isLocked()) {
-			relock = true;
-			manager.unlock(key);
-		}
-		engine.getLogger().log(level, message, ex);
-		if (relock) {
-			manager.lock(key);
 		}
 	}
 
@@ -284,7 +251,7 @@ public class CommonPluginManager implements PluginManager {
 		plugins.add(metaPlugin);
 		names.put("Spout", metaPlugin);
 	}
-	
+
 	public SpoutMetaPlugin getMetaPlugin() {
 		return metaPlugin;
 	}

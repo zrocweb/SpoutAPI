@@ -35,7 +35,6 @@ import org.spout.api.exception.InvalidDescriptionFileException;
 import org.spout.api.exception.InvalidPluginException;
 import org.spout.api.exception.UnknownDependencyException;
 import org.spout.api.exception.UnknownSoftDependencyException;
-import org.spout.api.plugin.security.CommonSecurityManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -57,15 +56,11 @@ public class CommonPluginLoader implements PluginLoader {
 
 	protected final Engine engine;
 	private final Pattern[] patterns;
-	private final CommonSecurityManager manager;
-	private final double key;
 	@SuppressWarnings("unchecked")
 	private final Map<String, CommonClassLoader> loaders = new CaseInsensitiveMap();
 
-	public CommonPluginLoader(final Engine engine, final CommonSecurityManager manager, final double key) {
+	public CommonPluginLoader(final Engine engine) {
 		this.engine = engine;
-		this.manager = manager;
-		this.key = key;
 		patterns = new Pattern[]{Pattern.compile("\\.jar$")};
 	}
 
@@ -155,17 +150,11 @@ public class CommonPluginLoader implements PluginLoader {
 			Class<?> main = Class.forName(desc.getMain(), true, loader);
 			Class<? extends CommonPlugin> plugin = main.asSubclass(CommonPlugin.class);
 
-			boolean locked = manager.lock(key);
-
 			Constructor<? extends CommonPlugin> constructor = plugin.getConstructor();
 
 			result = constructor.newInstance();
 
 			result.initialize(this, engine, desc, dataFolder, paramFile, loader);
-
-			if (!locked) {
-				manager.unlock(key);
-			}
 		} catch (Exception e) {
 			throw new InvalidPluginException(e);
 		}
