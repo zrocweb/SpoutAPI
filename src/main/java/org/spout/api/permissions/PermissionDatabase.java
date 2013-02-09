@@ -24,44 +24,26 @@
  * License and see <http://spout.in/licensev1> for the full license, including
  * the MIT license.
  */
-package org.spout.api.chat.channel;
+package org.spout.api.permissions;
 
-import java.util.Collections;
-import java.util.Set;
+import com.google.common.collect.Multimap;
 
-import com.google.common.collect.Sets;
-
-import org.spout.api.Spout;
-import org.spout.api.command.CommandSource;
-import org.spout.api.permissions.PermissionContext;
+import java.util.Iterator;
 
 /**
- * An implementation of {@link ChatChannel} that gets receivers based on all players who have a certain permission
+ * A database that handles storing permissions data for all data sources applicable to a certain {@link PermissionContext}
  */
-public class PermissionChatChannel extends ChatChannel {
-	private final String permission;
+public interface PermissionDatabase {
+    /**
+     * Returns the nodes stored in this database.
+     * The resulting list will never affect the data in this database,
+     * and may do that either by being immutable or holding a copy of the data.
+     *
+     * @return All nodes stored in this database.
+     */
+    public Multimap<String, PermissionState> getNodes();
 
-	public PermissionChatChannel(String name, String permission) {
-		super(name);
-		this.permission = permission;
-	}
+    public PermissionState getValue(String node);
 
-	@Override
-	public Set<CommandSource> getReceivers() {
-		Set<PermissionContext> permsResult = Spout.getEngine().getAllWithNode(permission);
-		Set<CommandSource> ret = Sets.newHashSet();
-
-		for (PermissionContext subj : permsResult) {
-			if (subj instanceof CommandSource) {
-				ret.add((CommandSource) subj);
-			}
-		}
-
-		return Collections.unmodifiableSet(ret);
-	}
-
-	@Override
-	public boolean isReceiver(CommandSource source) {
-		return source.hasPermission(permission);
-	}
+    public Iterator<PermissionState> nodeIterator();
 }

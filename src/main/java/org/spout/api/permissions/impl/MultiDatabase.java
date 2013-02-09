@@ -24,44 +24,43 @@
  * License and see <http://spout.in/licensev1> for the full license, including
  * the MIT license.
  */
-package org.spout.api.chat.channel;
+package org.spout.api.permissions.impl;
 
-import java.util.Collections;
-import java.util.Set;
+import com.google.common.collect.ImmutableList;
 
-import com.google.common.collect.Sets;
-
-import org.spout.api.Spout;
-import org.spout.api.command.CommandSource;
-import org.spout.api.permissions.PermissionContext;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * An implementation of {@link ChatChannel} that gets receivers based on all players who have a certain permission
+ * Parent data structure for our database implementations that group several database together.
  */
-public class PermissionChatChannel extends ChatChannel {
-	private final String permission;
+public class MultiDatabase<T> {
+    private final List<T> sources = new ArrayList<T>();
 
-	public PermissionChatChannel(String name, String permission) {
-		super(name);
-		this.permission = permission;
-	}
+    public void addFirst(T source) {
+        sources.add(0, source);
+    }
 
-	@Override
-	public Set<CommandSource> getReceivers() {
-		Set<PermissionContext> permsResult = Spout.getEngine().getAllWithNode(permission);
-		Set<CommandSource> ret = Sets.newHashSet();
+    public void addLast(T source) {
+        sources.add(sources.size() - 1, source);
+    }
 
-		for (PermissionContext subj : permsResult) {
-			if (subj instanceof CommandSource) {
-				ret.add((CommandSource) subj);
-			}
-		}
+    public void addBefore(T existing, T toAdd) {
+        int index = sources.indexOf(existing);
+        sources.add(index == -1 ? 0 : index, toAdd);
+    }
 
-		return Collections.unmodifiableSet(ret);
-	}
+    public void addAfter(T existing, T toAdd) {
+        int index = sources.indexOf(existing);
+        sources.add(index == -1 ? sources.size() - 1 : index, toAdd);
+    }
 
-	@Override
-	public boolean isReceiver(CommandSource source) {
-		return source.hasPermission(permission);
-	}
+    public List<T> getSources() {
+        return ImmutableList.copyOf(sources);
+    }
+
+    protected List<T> getSourcesLive() {
+        return sources;
+    }
+
 }

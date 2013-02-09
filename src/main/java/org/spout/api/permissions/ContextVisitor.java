@@ -24,44 +24,13 @@
  * License and see <http://spout.in/licensev1> for the full license, including
  * the MIT license.
  */
-package org.spout.api.chat.channel;
+package org.spout.api.permissions;
 
-import java.util.Collections;
-import java.util.Set;
-
-import com.google.common.collect.Sets;
-
-import org.spout.api.Spout;
-import org.spout.api.command.CommandSource;
-import org.spout.api.permissions.PermissionContext;
+import com.google.common.base.Predicate;
 
 /**
- * An implementation of {@link ChatChannel} that gets receivers based on all players who have a certain permission
+ * Defines an object that visits all contexts in the parent tree
  */
-public class PermissionChatChannel extends ChatChannel {
-	private final String permission;
-
-	public PermissionChatChannel(String name, String permission) {
-		super(name);
-		this.permission = permission;
-	}
-
-	@Override
-	public Set<CommandSource> getReceivers() {
-		Set<PermissionContext> permsResult = Spout.getEngine().getAllWithNode(permission);
-		Set<CommandSource> ret = Sets.newHashSet();
-
-		for (PermissionContext subj : permsResult) {
-			if (subj instanceof CommandSource) {
-				ret.add((CommandSource) subj);
-			}
-		}
-
-		return Collections.unmodifiableSet(ret);
-	}
-
-	@Override
-	public boolean isReceiver(CommandSource source) {
-		return source.hasPermission(permission);
-	}
+public interface ContextVisitor {
+    public boolean visit(PermissionContext start, Predicate<PermissionContext> predicate);
 }

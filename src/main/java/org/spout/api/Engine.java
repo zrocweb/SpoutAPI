@@ -52,7 +52,7 @@ import org.spout.api.generator.WorldGenerator;
 import org.spout.api.geo.World;
 import org.spout.api.inventory.recipe.RecipeManager;
 import org.spout.api.permissions.DefaultPermissions;
-import org.spout.api.permissions.PermissionsSubject;
+import org.spout.api.permissions.PermissionContext;
 import org.spout.api.plugin.Platform;
 import org.spout.api.plugin.PluginManager;
 import org.spout.api.plugin.ServiceManager;
@@ -94,9 +94,9 @@ public interface Engine extends Named {
 	 * Returns a Set of all permissions subjects with the provided node. Plugins wishing
 	 * to modify the result of this event should listen to the {@link org.spout.api.event.server.permissions.PermissionGetAllWithNodeEvent} event.
 	 * @param permission The permission to check
-	 * @return Every {@link PermissionsSubject} with the specified node
+	 * @return Every {@link PermissionContext} with the specified node
 	 */
-	public Set<PermissionsSubject> getAllWithNode(String permission);
+	public Set<PermissionContext> getAllWithNode(String permission);
 
 	/**
 	 * Gets singleton instance of the plugin manager, used to interact with

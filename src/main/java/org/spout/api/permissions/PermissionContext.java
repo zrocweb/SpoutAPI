@@ -24,56 +24,44 @@
  * License and see <http://spout.in/licensev1> for the full license, including
  * the MIT license.
  */
-package org.spout.api.event.server.permissions;
+package org.spout.api.permissions;
 
-import org.spout.api.event.HandlerList;
-import org.spout.api.event.world.WorldEvent;
-import org.spout.api.geo.World;
-import org.spout.api.permissions.PermissionsSubject;
+import org.spout.api.command.CommandSource;
+import org.spout.api.permissions.impl.MultiOptionDatabase;
+import org.spout.api.permissions.impl.MultiPermissionDatabase;
+import org.spout.api.util.Named;
+
+import java.util.List;
 
 /**
- * This event is called when {@link PermissionsSubject#isInGroup(String)} is called.
+ * Represents a context for permission
  */
-public class PermissionGroupsEvent extends WorldEvent {
-	private static final HandlerList handlers = new HandlerList();
-	private final PermissionsSubject subject;
-	private String[] groups;
+public interface PermissionContext extends Named {
+    /**
+     * Return the parent contexts of this context.
+     * For example:
+     * If the context is a player, this is how you apply groups to the context.
+     *
+     * @return A mutable list of the parents of this context.
+     */
+    public List<PermissionContext> getParents();
 
-	public PermissionGroupsEvent(World world, PermissionsSubject subject) {
-		super(world);
-		this.subject = subject;
-	}
+    /**
+     * Get the database for permissions stored in this context.
+     *
+     * @return The database.
+     */
+    public MultiPermissionDatabase getPermissions();
 
-	/**
-	 * Gets the groups of the event.
-	 * @return all groups of the subject
-	 */
-	public String[] getGroups() {
-		return groups;
-	}
+    /**
+     * Return the database of options attached to this context.
+     * The options database is separate from the permissions database.
+     *
+     * @return The options database.
+     */
+    public MultiOptionDatabase getOptions();
 
-	/**
-	 * Sets the groups of the event.
-	 * @param groups of the subject
-	 */
-	public void setGroups(String... groups) {
-		this.groups = groups;
-	}
-
-	/**
-	 * The subject that is being checked.
-	 * @return subject
-	 */
-	public PermissionsSubject getSubject() {
-		return subject;
-	}
-
-	@Override
-	public HandlerList getHandlers() {
-		return handlers;
-	}
-
-	public static HandlerList getHandlerList() {
-		return handlers;
-	}
+    public PermissionResolver getDefaultResolver();
+    public void setDefaultResolver(PermissionResolver resolver);
+    public boolean isApplicable(CommandSource check);
 }

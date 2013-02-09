@@ -36,6 +36,8 @@ import org.spout.api.chat.channel.SetChatChannel;
 import org.spout.api.command.CommandSource;
 import org.spout.api.data.ValueHolder;
 import org.spout.api.geo.World;
+import org.spout.api.permissions.impl.AbstractPermissionContext;
+import org.spout.api.permissions.impl.PermissionSubjectImpl;
 
 import static org.junit.Assert.assertEquals;
 public class LanguageTest {
@@ -76,62 +78,11 @@ public class LanguageTest {
 		}
 	}
 
-	public static class TestCommandSource implements CommandSource {
+	public static class TestCommandSource extends PermissionSubjectImpl implements CommandSource {
 
-		@Override
-		public boolean hasPermission(String node) {
-			return false;
-		}
-
-		@Override
-		public boolean hasPermission(World world, String node) {
-			return false;
-		}
-
-		@Override
-		public boolean isInGroup(String group) {
-			return false;
-		}
-
-		@Override
-		public boolean isInGroup(World world, String group) {
-			return false;
-		}
-
-		@Override
-		public String[] getGroups() {
-			return null;
-		}
-
-		@Override
-		public String[] getGroups(World world) {
-			return null;
-		}
-
-		@Override
-		public ValueHolder getData(String node) {
-			return null;
-		}
-
-		@Override
-		public ValueHolder getData(World world, String node) {
-			return null;
-		}
-
-		@Override
-		public boolean hasData(String node) {
-			return false;
-		}
-
-		@Override
-		public boolean hasData(World world, String node) {
-			return false;
-		}
-
-		@Override
-		public String getName() {
-			return null;
-		}
+        public TestCommandSource() {
+            super("LanguageTest");
+        }
 
 		@Override
 		public boolean sendMessage(Object... message) {
@@ -177,5 +128,5 @@ public class LanguageTest {
 		public void setActiveChannel(ChatChannel chan) {
 			// nope
 		}
-	}
+    }
 }

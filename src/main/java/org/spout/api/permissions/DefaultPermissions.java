@@ -26,23 +26,27 @@
  */
 package org.spout.api.permissions;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Multimap;
 import org.spout.api.Engine;
+import org.spout.api.command.CommandSource;
 import org.spout.api.event.EventHandler;
 import org.spout.api.event.Listener;
 import org.spout.api.event.Order;
-import org.spout.api.event.Result;
-import org.spout.api.event.server.permissions.PermissionGetAllWithNodeEvent;
-import org.spout.api.event.server.permissions.PermissionNodeEvent;
+import org.spout.api.event.player.PlayerJoinEvent;
 import org.spout.api.exception.ConfigurationException;
+import org.spout.api.permissions.impl.AbstractPermissionContext;
 import org.spout.api.util.config.Configuration;
 import org.spout.api.util.config.ConfigurationHolder;
 import org.spout.api.util.config.ConfigurationHolderConfiguration;
 import org.spout.api.util.config.yaml.YamlConfiguration;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.logging.Level;
 
@@ -58,8 +62,9 @@ public class DefaultPermissions extends ConfigurationHolderConfiguration impleme
 
 	private final Engine engine;
 	private final YamlConfiguration config;
-	private final Set<String> defaultPermissions = new HashSet<String>();
-	private final Set<String> pluginDefaultPermissions = new HashSet<String>();
+	private final Multimap<String, PermissionState> defaultPermissions = HashMultimap.create();
+	private final Multimap<String, PermissionState> pluginDefaultPermissions = HashMultimap.create();
+    private final DefaultPermissionContext contextInstance = new DefaultPermissionContext();
 
 	public DefaultPermissions(Engine engine, File configFile) {
 		super(null);
@@ -80,6 +85,29 @@ public class DefaultPermissions extends ConfigurationHolderConfiguration impleme
 		return config;
 	}
 
+    private class DefaultPermissionContext extends AbstractPermissionContext {
+
+        public DefaultPermissionContext() {
+            getPermissions().addLast(new DefaultPermissionDatabase(defaultPermissions));
+            getPermissions().addLast(new DefaultPermissionDatabase(pluginDefaultPermissions));
+        }
+
+        @Override
+        public boolean isApplicable(CommandSource check) {
+            return ENABLED.getBoolean();
+        }
+
+        @Override
+        public String getName() {
+            return "Default Permissions";
+        }
+    }
+
+    @EventHandler(order = Order.EARLIEST)
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        event.getPlayer().getParents().add(contextInstance);
+    }
+
 	/**
 	 * Reload the user-defined default permissions
 	 */
@@ -91,44 +119,19 @@ public class DefaultPermissions extends ConfigurationHolderConfiguration impleme
 			engine.getLogger().log(Level.SEVERE, "Error loading permissions configuration!", e);
 		}
 		defaultPermissions.clear();
-		defaultPermissions.addAll(DEFAULTS.getStringList());
+		for (String node : DEFAULTS.getStringList()) {
+            PermissionState value = toPermissionSetting(node);
+            defaultPermissions.put(value.getPermission(), value);
+        }
 	}
 
-	@EventHandler(order = Order.LATEST)
-	protected void onPermissionNode(PermissionNodeEvent event) {
-		if (!ENABLED.getBoolean()) {
-			return;
-		}
-		if (event.getResult() == Result.DEFAULT) {
-			for (String node : event.getNodes()) {
-				if (defaultPermissions.contains(node) || pluginDefaultPermissions.contains(node)) {
-					event.setResult(Result.ALLOW);
-					break;
-				}
-			}
-		}
-	}
-
-	@EventHandler(order = Order.LATEST)
-	protected void onGetAllWithNode(PermissionGetAllWithNodeEvent event) {
-		if (!ENABLED.getBoolean()) {
-			return;
-		}
-		boolean hasNode = false;
-		for (String node : event.getNodes()) {
-			if (defaultPermissions.contains(node) || pluginDefaultPermissions.contains(node)) {
-				hasNode = true;
-				break;
-			}
-		}
-		if (hasNode) {
-			for (Map.Entry<PermissionsSubject, Result> entry : event.getReceivers().entrySet()) {
-				if (entry.getValue() == Result.DEFAULT) {
-					entry.setValue(Result.ALLOW);
-				}
-			}
-		}
-	}
+    public PermissionState toPermissionSetting(String node) {
+        if (node.startsWith("-")) {
+            return new PermissionState(node.substring(1), false);
+        } else {
+            return new PermissionState(node, true);
+        }
+    }
 
 	/**
 	 * Adds a default permission to be applied to PermissionSubjects
@@ -136,8 +139,21 @@ public class DefaultPermissions extends ConfigurationHolderConfiguration impleme
 	 * @param node The node to add
 	 */
 	public void addDefaultPermission(String node) {
-		pluginDefaultPermissions.add(node);
+		addDefaultPermission(node, true);
 	}
+
+    /**
+     * Adds a default permission to be applied to PermissionSubjects
+     *
+     * @param node The node to add
+     */
+    public void addDefaultPermission(String node, boolean value) {
+        addDefaultPermission(new PermissionState(node, value));
+    }
+
+    public void addDefaultPermission(PermissionState value) {
+        pluginDefaultPermissions.put(value.getPermission(), value);
+    }
 
 	/**
 	 * Get the current default permissions. The returned collection will be unmodifiable.
@@ -145,13 +161,11 @@ public class DefaultPermissions extends ConfigurationHolderConfiguration impleme
 	 *
 	 * @return The current default permissions
 	 */
-	public Set<String> getDefaultPermissions() {
+	public Set<PermissionState> getDefaultPermissions() {
 		if (!ENABLED.getBoolean()) {
 			return Collections.emptySet();
 		}
-		HashSet<String> perms = new HashSet<String>(defaultPermissions);
-		perms.addAll(pluginDefaultPermissions);
-		return Collections.unmodifiableSet(perms);
+        return ImmutableSet.copyOf(Iterables.concat(defaultPermissions.values(), pluginDefaultPermissions.values()));
 	}
 
 	/**
@@ -163,9 +177,9 @@ public class DefaultPermissions extends ConfigurationHolderConfiguration impleme
 	 * @param node The node to remove
 	 */
 	public void removeDefaultPermission(String node) {
-		if (!pluginDefaultPermissions.remove(node)) {
-			if (defaultPermissions.contains(node)) {
-				defaultPermissions.remove(node);
+		if (pluginDefaultPermissions.removeAll(node).size() == 0) {
+			if (defaultPermissions.containsKey(node)) {
+				defaultPermissions.removeAll(node);
 				DEFAULTS.getList().remove(node);
 				try {
 					save();
@@ -173,4 +187,31 @@ public class DefaultPermissions extends ConfigurationHolderConfiguration impleme
 			}
 		}
 	}
+
+    private static class DefaultPermissionDatabase implements PermissionDatabase {
+        private final Multimap<String, PermissionState> data;
+
+        private DefaultPermissionDatabase(Multimap<String, PermissionState> data) {
+            this.data = data;
+        }
+
+        @Override
+        public Multimap<String, PermissionState> getNodes() {
+            return data;
+        }
+
+        @Override
+        public PermissionState getValue(String node) {
+            Collection<PermissionState> values = data.get(node);
+            if (values.size() == 0) {
+                return null;
+            }
+            return values.iterator().next();
+        }
+
+        @Override
+        public Iterator<PermissionState> nodeIterator() {
+            return data.values().iterator();
+        }
+    }
 }

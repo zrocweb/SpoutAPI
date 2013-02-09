@@ -24,44 +24,48 @@
  * License and see <http://spout.in/licensev1> for the full license, including
  * the MIT license.
  */
-package org.spout.api.chat.channel;
+package org.spout.api.permissions.impl;
 
-import java.util.Collections;
-import java.util.Set;
-
-import com.google.common.collect.Sets;
-
-import org.spout.api.Spout;
-import org.spout.api.command.CommandSource;
+import com.google.common.base.Preconditions;
 import org.spout.api.permissions.PermissionContext;
+import org.spout.api.permissions.PermissionResolver;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * An implementation of {@link ChatChannel} that gets receivers based on all players who have a certain permission
+ * Basic implementation of a permission context
  */
-public class PermissionChatChannel extends ChatChannel {
-	private final String permission;
+public abstract class AbstractPermissionContext implements PermissionContext {
+    private final List<PermissionContext> parents = new ArrayList<PermissionContext>();
+    private final MultiPermissionDatabase permissions = new MultiPermissionDatabase();
+    private final MultiOptionDatabase options = new MultiOptionDatabase();
+    private PermissionResolver defaultResolver = WildcardNodePermissionResolver.INSTANCE;
 
-	public PermissionChatChannel(String name, String permission) {
-		super(name);
-		this.permission = permission;
-	}
+    @Override
+    public List<PermissionContext> getParents() {
+        return parents;
+    }
 
-	@Override
-	public Set<CommandSource> getReceivers() {
-		Set<PermissionContext> permsResult = Spout.getEngine().getAllWithNode(permission);
-		Set<CommandSource> ret = Sets.newHashSet();
+    @Override
+    public MultiPermissionDatabase getPermissions() {
+        return permissions;
+    }
 
-		for (PermissionContext subj : permsResult) {
-			if (subj instanceof CommandSource) {
-				ret.add((CommandSource) subj);
-			}
-		}
+    @Override
+    public MultiOptionDatabase getOptions() {
+        return options;
+    }
 
-		return Collections.unmodifiableSet(ret);
-	}
+    @Override
+    public PermissionResolver getDefaultResolver() {
+        return defaultResolver;
+    }
 
-	@Override
-	public boolean isReceiver(CommandSource source) {
-		return source.hasPermission(permission);
-	}
+    @Override
+    public void setDefaultResolver(PermissionResolver resolver) {
+        Preconditions.checkNotNull(resolver);
+        this.defaultResolver = resolver;
+    }
+
 }

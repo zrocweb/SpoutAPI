@@ -34,16 +34,20 @@ import org.spout.api.chat.ChatArguments;
 import org.spout.api.chat.ChatSection;
 import org.spout.api.chat.channel.ChatChannel;
 import org.spout.api.chat.channel.SetChatChannel;
-import org.spout.api.data.ValueHolder;
 import org.spout.api.exception.CommandException;
 import org.spout.api.exception.MissingCommandException;
-import org.spout.api.geo.World;
 import org.spout.api.lang.Locale;
+import org.spout.api.permissions.impl.AbstractPermissionContext;
+import org.spout.api.permissions.impl.PermissionSubjectImpl;
 
-public class SimpleCommandTest implements CommandSource {
+public class SimpleCommandTest extends PermissionSubjectImpl implements CommandSource {
 	private SimpleCommand testCommand;
 
-	@Before
+    public SimpleCommandTest() {
+        super("SimpleCommandTest");
+    }
+
+    @Before
 	public void setUp() {
 		testCommand = new SimpleCommand(this, "test1", "test2");
 	}
@@ -89,57 +93,7 @@ public class SimpleCommandTest implements CommandSource {
 		return true;
 	}
 
-	@Override
-	public boolean hasPermission(String node) {
-		return true;
-	}
-
-	@Override
-	public boolean isInGroup(String group) {
-		return false;
-	}
-
-	@Override
-	public boolean isInGroup(World world, String group) {
-		return false;
-	}
-
-	@Override
-	public String[] getGroups() {
-		return new String[0];
-	}
-
-	@Override
-	public String[] getGroups(World world) {
-		return new String[0];
-	}
-
-	@Override
-	public boolean hasPermission(World world, String node) {
-		return true;
-	}
-
-	@Override
-	public ValueHolder getData(String node) {
-		return null;
-	}
-
-	@Override
-	public ValueHolder getData(World world, String node) {
-		return null;
-	}
-
-	@Override
-	public boolean hasData(String node) {
-		return false;
-	}
-
-	@Override
-	public boolean hasData(World world, String node) {
-		return false;
-	}
-
-	@Override
+    @Override
 	public Locale getPreferredLocale() {
 		return Locale.ENGLISH_US;
 	}
