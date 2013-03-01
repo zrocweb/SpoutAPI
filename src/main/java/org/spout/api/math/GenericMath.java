@@ -792,7 +792,7 @@ public class GenericMath {
 
 	public static com.bulletphysics.linearmath.Transform toPhysicsTransform(Transform transform) {
 		final com.bulletphysics.linearmath.Transform physicsTransform = new com.bulletphysics.linearmath.Transform();
-		final Vector3f worldSpace = VectorMath.toVector3f(transform.getPosition());
+		final Vector3f worldSpace = VectorMath.toVector3f(transform.getPosition(true));
 		final Quat4f worldRotation = QuaternionMath.toQuaternionf(transform.getRotation());
 		physicsTransform.set(new Matrix4f(worldRotation, worldSpace, 1));
 		return physicsTransform;
@@ -806,7 +806,7 @@ public class GenericMath {
 		physicsMatrix.get(physicsRotation);
 		final Vector3 sceneSpace = VectorMath.toVector3(physicsSpace);
 		final Quaternion sceneRotation = QuaternionMath.toQuaternion(physicsRotation);
-		liveState.setPosition(new Point(sceneSpace, liveState.getPosition().getWorld()));
+		liveState.setPosition(new Point(sceneSpace, liveState.getPosition().getWorld()), true);
 		liveState.setRotation(sceneRotation);
 		return liveState;
 	}

@@ -48,7 +48,7 @@ public class TransformTest {
 		World mock = PowerMockito.mock(World.class);
 		Point p = new Point(mock, 0, 0, 0);
 		Quaternion q = Quaternion.UNIT_X;
-		Vector3 s = new Vector3(0, 0, 0);
+		Vector3 s = new Vector3(1, 1, 1);
 		Transform transform = new Transform(p, q, s);
 		assertEquals("Transform point values did not match", transform.getPosition(), p);
 		assertEquals("Transform quaternion values did not match", transform.getRotation(), q);
@@ -70,7 +70,7 @@ public class TransformTest {
 		q = q.rotate(-45, 1, 0, 0);
 		s = s.divide(0.85F);
 		transform.set(p, q, s);
-		assertEquals("Transform point values did not match", transform.getPosition(), p);
+		assertEquals("Transform point values did not match", transform.getPosition(true), p);
 		assertEquals("Transform quaternion values did not match", transform.getRotation(), q);
 		assertEquals("Transform scale values did not match", transform.getScale(), s);
 

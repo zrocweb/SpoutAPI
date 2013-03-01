@@ -89,7 +89,7 @@ public abstract class RepositionManagerImpl implements RepositionManager {
 
 	@Override
 	public Transform convert(Transform t) {
-		return new Transform(convert(t.getPosition()), t.getRotation(), t.getScale());
+		return new Transform(convert(t.getPosition(true)), t.getRotation(), t.getScale());
 	}
 
 	@Override
