@@ -28,9 +28,10 @@ package org.spout.api.material.block;
 
 import gnu.trove.map.hash.TIntObjectHashMap;
 
-import org.spout.api.math.Quaternion;
-import org.spout.api.math.Vector3;
 import org.spout.api.util.bytebit.ByteBitMask;
+
+import org.spout.math.Quaternion;
+import org.spout.math.Vector3;
 
 /**
  * Indicates the facing of a Block

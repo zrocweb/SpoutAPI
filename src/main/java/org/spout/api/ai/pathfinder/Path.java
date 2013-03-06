@@ -33,9 +33,10 @@ import org.spout.api.ai.pathfinder.PathPoint.PathCallback;
 import org.spout.api.entity.Entity;
 import org.spout.api.geo.World;
 import org.spout.api.geo.cuboid.Block;
-import org.spout.api.math.Vector3;
 
 import com.google.common.collect.Lists;
+
+import org.spout.math.Vector3;
 
 public class Path implements Plan<Entity> {
 	private int index = 0;

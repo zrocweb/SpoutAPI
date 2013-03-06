@@ -46,7 +46,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.spout.api.math.GenericMath;
+import org.spout.math.GenericMath;
 
 /**
  * This is a synchronised version of the Trove LongObjectHashMap.

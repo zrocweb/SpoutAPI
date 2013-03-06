@@ -26,7 +26,6 @@
  */
 package org.spout.api.model.animation;
 
-import org.spout.api.math.Matrix;
 import org.spout.api.resource.Resource;
 
 public class Animation extends Resource{

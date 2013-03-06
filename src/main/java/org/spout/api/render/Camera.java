@@ -26,7 +26,7 @@
  */
 package org.spout.api.render;
 
-import org.spout.api.math.Matrix;
+import org.spout.math.Matrix;
 
 /**
  * Represents a Camera to be used for rendering.

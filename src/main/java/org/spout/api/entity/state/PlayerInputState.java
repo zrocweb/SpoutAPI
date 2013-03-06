@@ -30,7 +30,7 @@ import java.util.EnumSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.spout.api.math.GenericMath;
+import org.spout.math.GenericMath;
 
 /**
  * Represents the current player input state

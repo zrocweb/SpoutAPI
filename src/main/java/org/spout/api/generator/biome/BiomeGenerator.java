@@ -37,7 +37,8 @@ import org.spout.api.geo.World;
 import org.spout.api.geo.cuboid.Chunk;
 import org.spout.api.generator.GeneratorPopulator;
 import org.spout.api.util.cuboid.CuboidBlockMaterialBuffer;
-import org.spout.api.math.Vector3;
+
+import org.spout.math.Vector3;
 
 /**
  * Abstract Biome Column Generator.

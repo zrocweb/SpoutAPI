@@ -39,8 +39,9 @@ import org.spout.api.component.type.WidgetComponent;
 import org.spout.api.gui.render.RenderPart;
 import org.spout.api.gui.render.RenderPartPack;
 import org.spout.api.map.DefaultedKey;
-import org.spout.api.math.Rectangle;
 import org.spout.api.render.Font;
+
+import org.spout.math.Rectangle;
 
 public class LabelComponent extends WidgetComponent {
 	private static final DefaultedKey<ChatArguments> KEY_TEXT = new DefaultedKey<ChatArguments>() {

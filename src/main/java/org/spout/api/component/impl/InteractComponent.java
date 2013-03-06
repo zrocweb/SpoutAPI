@@ -31,9 +31,10 @@ import org.spout.api.entity.Player;
 import org.spout.api.geo.cuboid.Block;
 import org.spout.api.geo.discrete.Transform;
 import org.spout.api.material.block.BlockFace;
-import org.spout.api.math.QuaternionMath;
-import org.spout.api.math.Vector3;
 import org.spout.api.util.BlockIterator;
+
+import org.spout.math.QuaternionMath;
+import org.spout.math.Vector3;
 
 /**
  * A component allowing a player to interact with a block

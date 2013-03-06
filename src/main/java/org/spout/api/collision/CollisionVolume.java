@@ -26,7 +26,7 @@
  */
 package org.spout.api.collision;
 
-import org.spout.api.math.Vector3;
+import org.spout.math.Vector3;
 
 /**
  * Defines a Volume that can collide with another Volume

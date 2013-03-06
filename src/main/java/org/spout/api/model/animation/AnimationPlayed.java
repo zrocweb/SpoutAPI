@@ -26,7 +26,7 @@
  */
 package org.spout.api.model.animation;
 
-import org.spout.api.math.Matrix;
+import org.spout.math.Matrix;
 
 public class AnimationPlayed {
 

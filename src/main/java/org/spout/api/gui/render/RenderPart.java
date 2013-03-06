@@ -30,10 +30,11 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.spout.api.math.Rectangle;
-import org.spout.api.math.Vector2;
-import org.spout.api.math.Vector3;
 import org.spout.api.model.mesh.Vertex;
+
+import org.spout.math.Rectangle;
+import org.spout.math.Vector2;
+import org.spout.math.Vector3;
 
 public class RenderPart implements Comparable<RenderPart> {
 	private Rectangle source = Rectangle.ZERO;

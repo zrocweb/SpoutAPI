@@ -30,11 +30,14 @@ package org.spout.api.render;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
+
 import org.spout.api.geo.cuboid.Cuboid;
-import org.spout.api.math.Matrix;
-import org.spout.api.math.MatrixMath;
-import org.spout.api.math.Vector3;
+
+import org.spout.math.Matrix;
+import org.spout.math.MatrixMath;
+import org.spout.math.Vector3;
+
+import static junit.framework.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
 public class ViewFrustumTest {

@@ -28,7 +28,7 @@ package org.spout.api.collision;
 
 import java.util.ArrayList;
 
-import org.spout.api.math.Vector3;
+import org.spout.math.Vector3;
 
 /**
  * Defines a Heirachial Collision Volume

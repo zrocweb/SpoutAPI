@@ -31,7 +31,8 @@ import org.spout.api.inventory.ItemStack;
 import org.spout.api.map.DefaultedKey;
 import org.spout.api.map.DefaultedKeyImpl;
 import org.spout.api.material.BlockMaterial;
-import org.spout.api.math.Vector3;
+
+import org.spout.math.Vector3;
 
 /**
  * Common default data mappings one could expect each game to have. These are used instead of strings when retrieving values

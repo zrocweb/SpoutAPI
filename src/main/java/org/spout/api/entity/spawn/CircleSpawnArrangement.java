@@ -27,9 +27,10 @@
 package org.spout.api.entity.spawn;
 
 import org.spout.api.geo.discrete.Point;
-import org.spout.api.math.Matrix;
-import org.spout.api.math.MatrixMath;
-import org.spout.api.math.Vector3;
+
+import org.spout.math.Matrix;
+import org.spout.math.MatrixMath;
+import org.spout.math.Vector3;
 
 public class CircleSpawnArrangement extends GenericSpawnArrangement {
 	private final boolean halfRotate;

@@ -29,8 +29,8 @@ package org.spout.api.io.nbt;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.spout.api.Spout;
-import org.spout.api.math.Vector3;
+import org.spout.math.Vector3;
+
 import org.spout.nbt.FloatTag;
 import org.spout.nbt.ListTag;
 import org.spout.nbt.Tag;

@@ -26,8 +26,8 @@
  */
 package org.spout.api.collision;
 
-import org.spout.api.math.Vector3;
-import org.spout.api.math.VectorMath;
+import org.spout.math.Vector3;
+import org.spout.math.VectorMath;
 
 public class Segment extends CollisionVolume {
 	/**

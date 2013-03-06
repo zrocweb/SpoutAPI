@@ -26,10 +26,10 @@
  */
 package org.spout.api.geo.discrete;
 
-import org.spout.api.math.Complex;
-import org.spout.api.math.Matrix;
-import org.spout.api.math.MatrixMath;
-import org.spout.api.math.Vector2;
+import org.spout.math.Complex;
+import org.spout.math.Matrix;
+import org.spout.math.MatrixMath;
+import org.spout.math.Vector2;
 
 public class Transform2D {
 	private Vector2 position;

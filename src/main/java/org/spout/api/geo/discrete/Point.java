@@ -30,15 +30,16 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import org.spout.api.Spout;
 import org.spout.api.geo.LoadOption;
 import org.spout.api.geo.World;
 import org.spout.api.geo.WorldSource;
 import org.spout.api.geo.cuboid.Block;
 import org.spout.api.geo.cuboid.Chunk;
-import org.spout.api.math.Vector3;
 import org.spout.api.util.StringUtil;
 
+import org.spout.math.Vector3;
 /**
  * Represents a position in a World
  */

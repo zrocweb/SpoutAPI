@@ -28,8 +28,9 @@ package org.spout.api.gui;
 
 import org.spout.api.component.ComponentHolder;
 import org.spout.api.geo.discrete.Transform2D;
-import org.spout.api.math.Rectangle;
 import org.spout.api.tickable.Tickable;
+
+import org.spout.math.Rectangle;
 
 public interface Widget extends Tickable, ComponentHolder, Focusable, RenderPartContainer {
 	/**

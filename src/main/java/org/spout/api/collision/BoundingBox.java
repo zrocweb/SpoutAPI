@@ -27,7 +27,8 @@
 package org.spout.api.collision;
 
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.spout.api.math.Vector3;
+
+import org.spout.math.Vector3;
 
 /**
  * Represents the amount of volume an object takes up in the {@link World} for purposes of providing collision detection.

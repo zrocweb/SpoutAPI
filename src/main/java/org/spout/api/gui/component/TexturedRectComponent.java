@@ -33,8 +33,9 @@ import java.util.List;
 import org.spout.api.component.type.WidgetComponent;
 import org.spout.api.gui.render.RenderPart;
 import org.spout.api.gui.render.RenderPartPack;
-import org.spout.api.math.Rectangle;
 import org.spout.api.render.RenderMaterial;
+
+import org.spout.math.Rectangle;
 
 public class TexturedRectComponent extends WidgetComponent {
 	private RenderPartPack pack = new RenderPartPack();

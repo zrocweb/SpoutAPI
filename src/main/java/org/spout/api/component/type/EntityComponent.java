@@ -35,7 +35,8 @@ import org.spout.api.entity.Entity;
 import org.spout.api.event.player.PlayerInteractEvent.Action;
 import org.spout.api.geo.cuboid.Block;
 import org.spout.api.geo.discrete.Point;
-import org.spout.api.math.GenericMath;
+
+import org.spout.math.GenericMath;
 
 /**
  * Represents an attachment to a entity that can respond to Ticks.

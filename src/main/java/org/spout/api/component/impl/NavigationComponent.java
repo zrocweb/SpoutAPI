@@ -38,8 +38,9 @@ import org.spout.api.ai.pathfinder.VectorNode;
 import org.spout.api.component.type.EntityComponent;
 import org.spout.api.geo.discrete.Point;
 import org.spout.api.geo.discrete.Transform;
-import org.spout.api.math.Vector3;
 import org.spout.api.util.concurrent.SpinLock;
+
+import org.spout.math.Vector3;
 
 public class NavigationComponent extends EntityComponent {
 	private final AStarMachine<VectorNode, Path> astar = AStarMachine.createWithDefaultStorage();

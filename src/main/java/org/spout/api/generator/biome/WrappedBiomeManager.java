@@ -28,7 +28,8 @@ package org.spout.api.generator.biome;
 
 import org.spout.api.geo.World;
 import org.spout.api.geo.cuboid.Chunk;
-import org.spout.api.math.Vector2;
+
+import org.spout.math.Vector2;
 
 /**
  * Wraps multiple BiomeManagers into a single BiomeManager

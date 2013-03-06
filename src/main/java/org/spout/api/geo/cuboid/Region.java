@@ -37,11 +37,12 @@ import org.spout.api.geo.LoadOption;
 import org.spout.api.geo.LocalAreaAccess;
 import org.spout.api.geo.World;
 import org.spout.api.geo.discrete.Point;
-import org.spout.api.math.BitSize;
 import org.spout.api.scheduler.TaskManager;
 import org.spout.api.util.thread.annotation.DelayedWrite;
 import org.spout.api.util.thread.annotation.LiveRead;
 import org.spout.api.util.thread.annotation.SnapshotRead;
+
+import org.spout.math.BitSize;
 
 /**
  * Represents a cube containing 16x16x16 Chunks (256x256x256 Blocks)
@@ -203,8 +204,6 @@ public abstract class Region extends Cube implements AreaChunkAccess, LocalAreaA
 
 	/**
 	 * Gets all entities with the specified type.
-	 * @param type The {@link Class} for the type.
-	 * @param type The type of entity.
 	 * @return A set of entities with the specified type.
 	 */
 	@SnapshotRead

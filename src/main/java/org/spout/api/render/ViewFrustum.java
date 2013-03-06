@@ -27,8 +27,9 @@
 package org.spout.api.render;
 
 import org.spout.api.geo.cuboid.Cuboid;
-import org.spout.api.math.Matrix;
-import org.spout.api.math.Vector3;
+
+import org.spout.math.Matrix;
+import org.spout.math.Vector3;
 
 public class ViewFrustum {
 	

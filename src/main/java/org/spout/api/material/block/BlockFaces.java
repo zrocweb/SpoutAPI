@@ -32,8 +32,9 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Random;
 
-import org.spout.api.math.Vector3;
 import org.spout.api.util.bytebit.ByteBitMask;
+
+import org.spout.math.Vector3;
 
 /**
  * Contains several BlockFace array constants and functions to operate on them

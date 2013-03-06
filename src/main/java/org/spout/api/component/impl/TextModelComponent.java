@@ -29,9 +29,10 @@ package org.spout.api.component.impl;
 import org.spout.api.chat.ChatArguments;
 import org.spout.api.component.type.EntityComponent;
 import org.spout.api.map.DefaultedKey;
-import org.spout.api.math.Vector3;
 import org.spout.api.render.Font;
 import org.spout.api.render.SpoutRenderMaterials;
+
+import org.spout.math.Vector3;
 
 public class TextModelComponent extends EntityComponent {
 	protected float size = 1;

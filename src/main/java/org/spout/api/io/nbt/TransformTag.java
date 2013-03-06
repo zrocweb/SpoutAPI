@@ -29,8 +29,10 @@ package org.spout.api.io.nbt;
 import org.spout.api.geo.World;
 import org.spout.api.geo.discrete.Point;
 import org.spout.api.geo.discrete.Transform;
-import org.spout.api.math.Quaternion;
-import org.spout.api.math.Vector3;
+
+import org.spout.math.Quaternion;
+import org.spout.math.Vector3;
+
 import org.spout.nbt.CompoundMap;
 import org.spout.nbt.CompoundTag;
 import org.spout.nbt.Tag;

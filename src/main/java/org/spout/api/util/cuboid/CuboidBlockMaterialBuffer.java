@@ -29,7 +29,8 @@ package org.spout.api.util.cuboid;
 import java.util.Arrays;
 
 import org.spout.api.material.BlockMaterial;
-import org.spout.api.math.Vector3;
+
+import org.spout.math.Vector3;
 
 public class CuboidBlockMaterialBuffer extends ImmutableCuboidBlockMaterialBuffer {
 	private CuboidBlockMaterialBuffer source;

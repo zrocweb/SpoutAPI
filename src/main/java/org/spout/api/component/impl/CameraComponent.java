@@ -28,11 +28,12 @@ package org.spout.api.component.impl;
 
 import org.spout.api.component.type.EntityComponent;
 import org.spout.api.geo.discrete.Transform;
-import org.spout.api.math.Matrix;
-import org.spout.api.math.MatrixMath;
-import org.spout.api.math.Vector3;
 import org.spout.api.render.Camera;
 import org.spout.api.render.ViewFrustum;
+
+import org.spout.math.Matrix;
+import org.spout.math.MatrixMath;
+import org.spout.math.Vector3;
 
 public class CameraComponent extends EntityComponent implements Camera {
 	private Matrix projection;

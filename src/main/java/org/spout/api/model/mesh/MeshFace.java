@@ -30,9 +30,10 @@ import java.util.Iterator;
 
 import org.apache.commons.collections.iterators.ArrayIterator;
 
-import org.spout.api.math.Vector2;
-import org.spout.api.math.Vector3;
 import org.spout.api.util.StringUtil;
+
+import org.spout.math.Vector2;
+import org.spout.math.Vector3;
 
 /**
  * Represents a Triangle for a model face

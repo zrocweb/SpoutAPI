@@ -27,7 +27,8 @@
 package org.spout.api.audio;
 
 import org.spout.api.geo.discrete.Point;
-import org.spout.api.math.Vector3;
+
+import org.spout.math.Vector3;
 
 public interface SoundListener {
 	/**

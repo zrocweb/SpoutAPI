@@ -28,9 +28,10 @@ package org.spout.api.model.mesh;
 
 import java.awt.Color;
 
-import org.spout.api.math.Vector2;
-import org.spout.api.math.Vector3;
 import org.spout.api.util.StringUtil;
+
+import org.spout.math.Vector2;
+import org.spout.math.Vector3;
 
 public class Vertex {
 	public static final int SIZE_FLOAT = 4;

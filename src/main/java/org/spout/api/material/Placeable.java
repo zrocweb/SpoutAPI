@@ -29,7 +29,8 @@ package org.spout.api.material;
 import org.spout.api.event.Cause;
 import org.spout.api.geo.cuboid.Block;
 import org.spout.api.material.block.BlockFace;
-import org.spout.api.math.Vector3;
+
+import org.spout.math.Vector3;
 
 /**
  * An interface defining a {@link Material} that can be placed

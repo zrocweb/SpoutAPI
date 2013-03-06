@@ -45,9 +45,6 @@ import org.spout.api.material.basic.BasicSolid;
 import org.spout.api.material.block.BlockFace;
 import org.spout.api.material.block.BlockFaces;
 import org.spout.api.material.range.EffectRange;
-import org.spout.api.math.GenericMath;
-import org.spout.api.math.Vector3;
-import org.spout.api.model.Model;
 import org.spout.api.resource.SpoutModels;
 import org.spout.api.util.bytebit.ByteBitSet;
 import org.spout.api.util.flag.Flag;
@@ -55,6 +52,9 @@ import org.spout.api.util.flag.Flag;
 import com.bulletphysics.collision.dispatch.CollisionObject;
 import com.bulletphysics.collision.shapes.BoxShape;
 import com.bulletphysics.collision.shapes.CollisionShape;
+
+import org.spout.math.GenericMath;
+import org.spout.math.Vector3;
 
 /**
  * Defines the specific characteristics of a Block

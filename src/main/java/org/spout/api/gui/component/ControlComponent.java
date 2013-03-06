@@ -36,8 +36,9 @@ import org.spout.api.gui.render.RenderPart;
 import org.spout.api.gui.render.RenderPartPack;
 import org.spout.api.map.DefaultedKey;
 import org.spout.api.map.DefaultedKeyImpl;
-import org.spout.api.math.Rectangle;
 import org.spout.api.render.SpoutRenderMaterials;
+
+import org.spout.math.Rectangle;
 
 public class ControlComponent extends WidgetComponent {
 	private static final DefaultedKey<Integer> KEY_TAB_INDEX = new DefaultedKeyImpl<Integer>("tabIndex", 0);

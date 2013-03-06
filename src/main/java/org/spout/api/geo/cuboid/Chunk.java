@@ -44,12 +44,13 @@ import org.spout.api.geo.cuboid.ChunkSnapshot.SnapshotType;
 import org.spout.api.geo.discrete.Point;
 import org.spout.api.map.DefaultedMap;
 import org.spout.api.material.block.BlockFace;
-import org.spout.api.math.BitSize;
-import org.spout.api.math.Vector3;
 import org.spout.api.util.thread.annotation.DelayedWrite;
 import org.spout.api.util.thread.annotation.LiveRead;
 import org.spout.api.util.thread.annotation.LiveWrite;
 import org.spout.api.util.thread.annotation.SnapshotRead;
+
+import org.spout.math.BitSize;
+import org.spout.math.Vector3;
 
 /**
  * Represents a cube containing 16x16x16 Blocks

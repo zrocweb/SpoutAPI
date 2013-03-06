@@ -27,8 +27,9 @@
 package org.spout.api.entity.spawn;
 
 import org.spout.api.geo.discrete.Point;
-import org.spout.api.math.MatrixMath;
-import org.spout.api.math.Vector3;
+
+import org.spout.math.MatrixMath;
+import org.spout.math.Vector3;
 
 public class SpiralSpawnArrangement extends GenericSpawnArrangement {
 	private final float scaleRadius;

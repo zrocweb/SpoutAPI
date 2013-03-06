@@ -31,14 +31,15 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.spout.api.geo.World;
-import org.spout.api.math.Matrix;
-import org.spout.api.math.MatrixMath;
-import org.spout.api.math.Quaternion;
-import org.spout.api.math.Vector3;
-import org.spout.api.math.VectorMath;
 import org.spout.api.util.StringUtil;
 import org.spout.api.util.concurrent.SpinLock;
 import org.spout.api.util.thread.annotation.Threadsafe;
+
+import org.spout.math.Matrix;
+import org.spout.math.MatrixMath;
+import org.spout.math.Quaternion;
+import org.spout.math.Vector3;
+import org.spout.math.VectorMath;
 
 @ThreadSafe
 public final class Transform implements Serializable {

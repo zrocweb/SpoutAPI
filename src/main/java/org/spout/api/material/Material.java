@@ -44,13 +44,14 @@ import org.spout.api.geo.cuboid.Block;
 import org.spout.api.inventory.ItemStack;
 import org.spout.api.material.block.BlockFace;
 import org.spout.api.material.source.MaterialSource;
-import org.spout.api.math.GenericMath;
 import org.spout.api.model.Model;
 import org.spout.api.render.effect.MeshEffect;
 import org.spout.api.resource.SpoutModels;
 import org.spout.api.util.LogicUtil;
 import org.spout.api.util.flag.Flag;
 import org.spout.api.util.flag.FlagSingle;
+
+import org.spout.math.GenericMath;
 
 public abstract class Material extends MaterialRegistry implements MaterialSource {
 	private final short id;

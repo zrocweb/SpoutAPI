@@ -34,9 +34,10 @@ import org.spout.api.event.player.input.PlayerKeyEvent;
 import org.spout.api.gui.render.RenderPart;
 import org.spout.api.gui.render.RenderPartPack;
 import org.spout.api.input.Keyboard;
-import org.spout.api.math.Rectangle;
 import org.spout.api.render.SpoutRenderMaterials;
 import org.spout.api.signal.Signal;
+
+import org.spout.math.Rectangle;
 
 public class ButtonComponent extends LabelComponent {
 	public static final Signal SIGNAL_CLICKED = new Signal("clicked");

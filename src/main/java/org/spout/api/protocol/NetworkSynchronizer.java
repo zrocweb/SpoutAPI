@@ -49,7 +49,6 @@ import org.spout.api.geo.discrete.Point;
 import org.spout.api.geo.discrete.Transform;
 import org.spout.api.material.BlockMaterial;
 import org.spout.api.math.IntVector3;
-import org.spout.api.math.Quaternion;
 import org.spout.api.protocol.event.ProtocolEvent;
 import org.spout.api.protocol.event.ProtocolEventExecutor;
 import org.spout.api.protocol.event.ProtocolEventListener;
@@ -59,6 +58,7 @@ import org.spout.api.scheduler.TickStage;
 import org.spout.api.util.OutwardIterator;
 import org.spout.api.util.set.concurrent.TSyncIntHashSet;
 
+import org.spout.math.Quaternion;
 public abstract class NetworkSynchronizer {
 	protected final Player player;
 	protected final Session session;

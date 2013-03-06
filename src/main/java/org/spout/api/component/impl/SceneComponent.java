@@ -33,10 +33,11 @@ import org.spout.api.component.type.EntityComponent;
 import org.spout.api.geo.World;
 import org.spout.api.geo.discrete.Point;
 import org.spout.api.geo.discrete.Transform;
-import org.spout.api.math.Quaternion;
-import org.spout.api.math.Vector3;
 import org.spout.api.util.thread.annotation.SnapshotRead;
 import org.spout.api.util.thread.annotation.Threadsafe;
+
+import org.spout.math.Quaternion;
+import org.spout.math.Vector3;
 
 /**
  * Component that gives the owner the characteristics to be a part of a Scene.
@@ -205,7 +206,7 @@ public abstract class SceneComponent extends EntityComponent {
 	public abstract SceneComponent translate(Vector3 translation);
 
 	/**
-	 * Rotates this {@link org.spout.api.entity.Entity} from its current {@link org.spout.api.math.Quaternion} to the Quaternion
+	 * Rotates this {@link org.spout.api.entity.Entity} from its current {@link org.spout.math.Quaternion} to the Quaternion
 	 * that is the addition of the Quaternion provided.
 	 * <p>
 	 * For example, if I want to rotate an Entity upwards (which is moving its yaw), I would do a rotate(new Quaternion(0, 1, 0, 0));

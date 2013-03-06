@@ -30,7 +30,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
 import org.junit.Test;
-import org.spout.api.math.Vector3;
+
+import org.spout.math.Vector3;
 
 public class CuboidBlockMaterialBufferTest {
 	@Test

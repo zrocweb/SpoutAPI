@@ -26,7 +26,6 @@
  */
 package org.spout.api.data;
 
-import org.spout.api.math.GenericMath;
 import org.spout.api.util.config.serialization.Serialization;
 
 import java.lang.reflect.Type;
@@ -34,6 +33,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+
+import org.spout.math.GenericMath;
 
 public class ValueHolderBase implements ValueHolder {
 	private final ValueHolder actualValue;

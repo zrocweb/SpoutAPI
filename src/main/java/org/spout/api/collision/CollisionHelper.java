@@ -26,8 +26,8 @@
  */
 package org.spout.api.collision;
 
-import org.spout.api.math.GenericMath;
-import org.spout.api.math.Vector3;
+import org.spout.math.GenericMath;
+import org.spout.math.Vector3;
 
 public class CollisionHelper {
 	/**

@@ -38,7 +38,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import org.spout.api.math.Vector3;
+import org.spout.math.Vector3;
 
 public class CollisionHelperTest {
 	public CollisionHelperTest() {

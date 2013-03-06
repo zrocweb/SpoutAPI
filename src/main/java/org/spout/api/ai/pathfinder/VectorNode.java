@@ -29,9 +29,10 @@ package org.spout.api.ai.pathfinder;
 import java.util.List;
 
 import org.spout.api.ai.AStarNode;
-import org.spout.api.math.Vector3;
 
 import com.google.common.collect.Lists;
+
+import org.spout.math.Vector3;
 
 public class VectorNode extends AStarNode implements PathPoint {
 	private float blockCost = -1;

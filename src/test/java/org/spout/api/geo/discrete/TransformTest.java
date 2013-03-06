@@ -34,10 +34,9 @@ import org.junit.Test;
 import org.powermock.api.mockito.PowerMockito;
 
 import org.spout.api.geo.World;
-import org.spout.api.math.GenericMath;
-import org.spout.api.math.Quaternion;
-import org.spout.api.math.QuaternionMath;
-import org.spout.api.math.Vector3;
+import org.spout.api.math.BulletConverter;
+import org.spout.math.Quaternion;
+import org.spout.math.Vector3;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -93,7 +92,7 @@ public class TransformTest {
 		final Quaternion q = Quaternion.UNIT_X;
 		final Vector3 s = new Vector3(0, 0, 0);
 		final Transform sceneTransform = new Transform(p, q, s);
-		final com.bulletphysics.linearmath.Transform physicsTransform = GenericMath.toPhysicsTransform(sceneTransform);
+		final com.bulletphysics.linearmath.Transform physicsTransform = BulletConverter.toPhysicsTransform(sceneTransform);
 		//Test Physics Space
 		final Vector3f physicsSpace = physicsTransform.origin;
 		assertTrue(physicsSpace.x == p.getX());
@@ -112,13 +111,13 @@ public class TransformTest {
 	public void physicsToSceneTest() {
 		final World mock = PowerMockito.mock(World.class);
 		final Vector3f physicsSpace = new Vector3f(0, 0, 0);
-		final Quat4f physicsRotation = new Quat4f(QuaternionMath.toQuaternionf(Quaternion.UNIT_X));
+		final Quat4f physicsRotation = new Quat4f(BulletConverter.toQuaternionf(Quaternion.UNIT_X));
 		final Matrix4f physicsMatrix = new Matrix4f(physicsRotation, physicsSpace, 1);
 		final com.bulletphysics.linearmath.Transform physicsTransform = new com.bulletphysics.linearmath.Transform(physicsMatrix);
 		final Transform liveState = new Transform();
 		liveState.setPosition(new Point(mock, 0, 0, 0)); //To purely set the world
 		liveState.setScale(new Vector3(0, 0, 0)); //Physics has no scale but we still test conversion of it
-		final Transform sceneTransform = GenericMath.toSceneTransform(liveState, physicsTransform);
+		final Transform sceneTransform = BulletConverter.toSceneTransform(liveState, physicsTransform);
 		final Point sceneSpace = sceneTransform.getPosition();
 		final Quaternion sceneRotation = sceneTransform.getRotation();
 		final Vector3 sceneScale = sceneTransform.getScale();

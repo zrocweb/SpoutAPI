@@ -39,10 +39,11 @@ import org.spout.api.material.range.EffectRange;
 import org.spout.api.material.source.DataSource;
 import org.spout.api.material.source.MaterialSource;
 import org.spout.api.math.IntVector3;
-import org.spout.api.math.Vector3;
 import org.spout.api.util.thread.annotation.DelayedWrite;
 import org.spout.api.util.thread.annotation.LiveWrite;
 import org.spout.api.util.thread.annotation.Threadsafe;
+
+import org.spout.math.Vector3;
 
 public interface Block extends MaterialSource, WorldSource {
 
@@ -329,7 +330,7 @@ public interface Block extends MaterialSource, WorldSource {
 	 * Sets the sky light level to the given light level<br><br>
 	 * <b>Note: For persistence, alter block material light levels instead</b>
 	 * 
-	 * @param light level to set to
+	 * @param level level to set to
 	 * @return this Block
 	 */
 	public Block setSkyLight(byte level);
@@ -338,7 +339,7 @@ public interface Block extends MaterialSource, WorldSource {
 	 * Sets the block light level to the given light level<br><br>
 	 * <b>Note: For persistence, alter block material light levels instead</b>
 	 *
-	 * @param light level to set to
+	 * @param level level to set to
 	 * @return this Block
 	 */
 	public Block setBlockLight(byte level);

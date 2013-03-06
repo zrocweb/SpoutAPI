@@ -34,7 +34,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.spout.api.material.block.BlockFace;
-import org.spout.api.math.Vector3;
+import org.spout.math.Vector3;
 
 /**
  * Represents a Triangle for a model face

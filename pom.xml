@@ -171,6 +171,12 @@
 			<version>3.0.3</version>
 			<scope>compile</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.spout</groupId>
+			<artifactId>math</artifactId>
+			<version>1.0</version>
+			<scope>compile</scope>
+		</dependency>
 		<!-- Testing only -->
 		<dependency>
 			<groupId>junit</groupId>

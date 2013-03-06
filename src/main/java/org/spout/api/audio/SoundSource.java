@@ -26,7 +26,7 @@
  */
 package org.spout.api.audio;
 
-import org.spout.api.math.Vector3;
+import org.spout.math.Vector3;
 import org.spout.api.util.Named;
 
 /**

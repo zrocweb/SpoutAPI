@@ -29,8 +29,8 @@ package org.spout.api.util.map.concurrent;
 import gnu.trove.set.hash.TIntHashSet;
 
 import org.spout.api.material.source.MaterialSource;
-import org.spout.api.math.Vector3;
-import org.spout.api.render.RenderMaterial;
+
+import org.spout.math.Vector3;
 
 /**
  * This store stores block data for each chunk. Each block can either store a
