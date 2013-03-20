@@ -26,21 +26,18 @@
  */
 package org.spout.api.geo.discrete;
 
-import javax.vecmath.Matrix4f;
-import javax.vecmath.Quat4f;
-import javax.vecmath.Vector3f;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.powermock.api.mockito.PowerMockito;
-
 import org.spout.api.geo.World;
 import org.spout.api.math.GenericMath;
 import org.spout.api.math.Quaternion;
 import org.spout.api.math.QuaternionMath;
 import org.spout.api.math.Vector3;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import com.badlogic.gdx.physics.bullet.btTransform;
 
 public class TransformTest {
 	@Test
@@ -93,15 +90,15 @@ public class TransformTest {
 		final Quaternion q = Quaternion.UNIT_X;
 		final Vector3 s = new Vector3(0, 0, 0);
 		final Transform sceneTransform = new Transform(p, q, s);
-		final com.bulletphysics.linearmath.Transform physicsTransform = GenericMath.toPhysicsTransform(sceneTransform);
+		final btTransform physicsTransform = GenericMath.toPhysicsTransform(sceneTransform);
 		//Test Physics Space
-		final Vector3f physicsSpace = physicsTransform.origin;
+		final com.badlogic.gdx.math.Vector3 physicsSpace = physicsTransform.getOrigin();
 		assertTrue(physicsSpace.x == p.getX());
 		assertTrue(physicsSpace.y == p.getY());
 		assertTrue(physicsSpace.z == p.getZ());
 		//Test Physics Rotation
-		Quat4f physicsRotation = new Quat4f();
-		physicsTransform.getRotation(physicsRotation);
+		com.badlogic.gdx.math.Quaternion physicsRotation = new com.badlogic.gdx.math.Quaternion();
+		physicsTransform.setRotation(physicsRotation);
 		assertTrue(physicsRotation.w == q.getW());
 		assertTrue(physicsRotation.x == q.getX());
 		assertTrue(physicsRotation.y == q.getY());
@@ -111,10 +108,9 @@ public class TransformTest {
 	@Test
 	public void physicsToSceneTest() {
 		final World mock = PowerMockito.mock(World.class);
-		final Vector3f physicsSpace = new Vector3f(0, 0, 0);
-		final Quat4f physicsRotation = new Quat4f(QuaternionMath.toQuaternionf(Quaternion.UNIT_X));
-		final Matrix4f physicsMatrix = new Matrix4f(physicsRotation, physicsSpace, 1);
-		final com.bulletphysics.linearmath.Transform physicsTransform = new com.bulletphysics.linearmath.Transform(physicsMatrix);
+		final com.badlogic.gdx.math.Vector3 physicsSpace = new com.badlogic.gdx.math.Vector3(0, 0, 0);
+		final com.badlogic.gdx.math.Quaternion physicsRotation = new com.badlogic.gdx.math.Quaternion(QuaternionMath.toQuaternionf(Quaternion.UNIT_X));
+		final btTransform physicsTransform = new btTransform(physicsRotation, physicsSpace);
 		final Transform liveState = new Transform();
 		liveState.setPosition(new Point(mock, 0, 0, 0)); //To purely set the world
 		liveState.setScale(new Vector3(0, 0, 0)); //Physics has no scale but we still test conversion of it

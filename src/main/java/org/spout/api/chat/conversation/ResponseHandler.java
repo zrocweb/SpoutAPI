@@ -26,8 +26,6 @@
  */
 package org.spout.api.chat.conversation;
 
-import java.util.concurrent.atomic.AtomicReference;
-
 import org.spout.api.chat.ChatArguments;
 
 /**

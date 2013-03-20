@@ -30,7 +30,6 @@ import gnu.trove.set.hash.TIntHashSet;
 
 import org.spout.api.material.source.MaterialSource;
 import org.spout.api.math.Vector3;
-import org.spout.api.render.RenderMaterial;
 
 /**
  * This store stores block data for each chunk. Each block can either store a

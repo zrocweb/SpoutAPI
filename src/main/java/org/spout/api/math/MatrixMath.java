@@ -26,7 +26,8 @@
  */
 package org.spout.api.math;
 
-import javax.vecmath.Matrix4f;
+import com.badlogic.gdx.math.Matrix4;
+
 
 /**
  * Class containing matrix mathematical functions.
@@ -376,13 +377,8 @@ public class MatrixMath {
 	 * @param vector The vecmath matrix
 	 * @return The vector as a Spout matrix
 	 */
-	public static Matrix toMatrix(Matrix4f matrix) {
-		Matrix out = new Matrix(4);
-		for (int x = 0; x < 4; x++) {
-			for (int y = 0; y < 4; y++) {
-				out.set(x, y, matrix.getElement(x, y));
-			}
-		}
+	public static Matrix toMatrix(Matrix4 matrix) {
+		Matrix out = new Matrix(4, matrix.getValues());
 		return out;
 	}
 }

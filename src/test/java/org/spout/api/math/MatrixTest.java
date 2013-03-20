@@ -26,12 +26,12 @@
  */
 package org.spout.api.math;
 
-import javax.vecmath.Matrix4f;
-
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import org.junit.Test;
+
+import com.badlogic.gdx.math.Matrix4;
 
 public class MatrixTest {
 	private static final double eps = 0.01;
@@ -242,9 +242,16 @@ public class MatrixTest {
 
 	@Test
 	public void testBulletMatrixConvert() {
-		Matrix4f bullet = new Matrix4f();
-		bullet.setElement(0, 0, 10f);
+		Matrix4 bullet = new Matrix4();
+		float[] values = {	10.034F, 3, 0, 4,
+							0, 0, 7, 3.4F,
+							5, 0, 9.143F, 0,
+							3F, 0, 4, 0 };
+
+		bullet.set(values);
 		Matrix spout = MatrixMath.toMatrix(bullet);
-		assertTrue(spout.get(0, 0) == 10f);
+		for (int x = 0; x < 16; x++) {
+			assertTrue(spout.getData()[x] == values[x]);
+		}
 	}
 }

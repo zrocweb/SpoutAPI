@@ -26,15 +26,14 @@
  */
 package org.spout.api.math;
 
-import javax.vecmath.Matrix4f;
-import javax.vecmath.Quat4f;
-import javax.vecmath.Vector3f;
 import java.awt.Color;
 import java.security.SecureRandom;
 import java.util.Random;
 
 import org.spout.api.geo.discrete.Point;
 import org.spout.api.geo.discrete.Transform;
+
+import com.badlogic.gdx.physics.bullet.btTransform;
 
 /**
  * Class containing generic mathematical functions.
@@ -790,20 +789,18 @@ public class GenericMath {
 		return THREAD_LOCAL_RANDOM.get();
 	}
 
-	public static com.bulletphysics.linearmath.Transform toPhysicsTransform(Transform transform) {
-		final com.bulletphysics.linearmath.Transform physicsTransform = new com.bulletphysics.linearmath.Transform();
-		final Vector3f worldSpace = VectorMath.toVector3f(transform.getPosition());
-		final Quat4f worldRotation = QuaternionMath.toQuaternionf(transform.getRotation());
-		physicsTransform.set(new Matrix4f(worldRotation, worldSpace, 1));
+	public static btTransform toPhysicsTransform(Transform transform) {
+		final btTransform physicsTransform = new btTransform();
+		final com.badlogic.gdx.math.Vector3 worldSpace = VectorMath.toVector3f(transform.getPosition());
+		final com.badlogic.gdx.math.Quaternion worldRotation = QuaternionMath.toQuaternionf(transform.getRotation());
+		physicsTransform.setRotation(worldRotation);
+		physicsTransform.setOrigin(worldSpace);
 		return physicsTransform;
 	}
 
-	public static Transform toSceneTransform(Transform liveState, com.bulletphysics.linearmath.Transform transform) {
-		final Matrix4f physicsMatrix = transform.getMatrix(new Matrix4f());
-		final Vector3f physicsSpace = new Vector3f();
-		physicsMatrix.get(physicsSpace);
-		final Quat4f physicsRotation = new Quat4f();
-		physicsMatrix.get(physicsRotation);
+	public static Transform toSceneTransform(Transform liveState, btTransform transform) {
+		final com.badlogic.gdx.math.Vector3 physicsSpace = transform.getOrigin();
+		final com.badlogic.gdx.math.Quaternion physicsRotation = transform.getRotation();
 		final Vector3 sceneSpace = VectorMath.toVector3(physicsSpace);
 		final Quaternion sceneRotation = QuaternionMath.toQuaternion(physicsRotation);
 		liveState.setPosition(new Point(sceneSpace, liveState.getPosition().getWorld()));

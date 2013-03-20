@@ -26,9 +26,8 @@
  */
 package org.spout.api.math;
 
-import javax.vecmath.Quat4f;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
@@ -232,7 +231,7 @@ public class QuaternionTest {
 
 	@Test
 	public void testBulletToSpoutQuaternionConversion() {
-		final Quat4f bulletQuaternion = new Quat4f(1f, -5f, 0f, 1f);
+		final com.badlogic.gdx.math.Quaternion bulletQuaternion = new com.badlogic.gdx.math.Quaternion(1f, -5f, 0f, 1f);
 		final Quaternion spoutQuaternion = QuaternionMath.toQuaternion(bulletQuaternion);
 		assertEquals(bulletQuaternion.w, spoutQuaternion.w, eps);
 		assertEquals(bulletQuaternion.x, spoutQuaternion.x, eps);
@@ -243,7 +242,7 @@ public class QuaternionTest {
 	@Test
 	public void testSpoutToBulletQuaternionConversion() {
 		final Quaternion spoutQuaternion = new Quaternion(1f, -5f, 0f, 1f);
-		final Quat4f bulletQuaternion = QuaternionMath.toQuaternionf(spoutQuaternion);
+		final com.badlogic.gdx.math.Quaternion bulletQuaternion = QuaternionMath.toQuaternionf(spoutQuaternion);
 		assertEquals(spoutQuaternion.w, bulletQuaternion.w, eps);
 		assertEquals(spoutQuaternion.x, bulletQuaternion.x, eps);
 		assertEquals(spoutQuaternion.y, bulletQuaternion.y, eps);

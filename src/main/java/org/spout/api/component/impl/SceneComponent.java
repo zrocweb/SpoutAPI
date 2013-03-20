@@ -26,8 +26,6 @@
  */
 package org.spout.api.component.impl;
 
-import com.bulletphysics.collision.shapes.CollisionShape;
-
 import org.spout.api.ClientOnly;
 import org.spout.api.component.type.EntityComponent;
 import org.spout.api.geo.World;
@@ -37,6 +35,8 @@ import org.spout.api.math.Quaternion;
 import org.spout.api.math.Vector3;
 import org.spout.api.util.thread.annotation.SnapshotRead;
 import org.spout.api.util.thread.annotation.Threadsafe;
+
+import com.badlogic.gdx.physics.bullet.btCollisionShape;
 
 /**
  * Component that gives the owner the characteristics to be a part of a Scene.
@@ -326,12 +326,12 @@ public abstract class SceneComponent extends EntityComponent {
 	// Physics characteristics
 
 	/**
-	 * Gets the {@link CollisionShape} this {@link org.spout.api.entity.Entity} currently has applied to it.
+	 * Gets the {@link btCollisionShape} this {@link org.spout.api.entity.Entity} currently has applied to it.
 	 * <p/>
 	 * If no shape is available currently, a null will be returned.
 	 * @return The current CollisionShape applied.
 	 */
-	public abstract CollisionShape getShape();
+	public abstract btCollisionShape getShape();
 
 	/**
 	 * Sets the {@link CollisionShape} for {@link org.spout.api.entity.Entity}.
@@ -340,7 +340,7 @@ public abstract class SceneComponent extends EntityComponent {
 	 * @param shape
 	 * @return This component, so you can chain.
 	 */
-	public abstract SceneComponent setShape(float mass, CollisionShape shape);
+	public abstract SceneComponent setShape(float mass, btCollisionShape shape);
 
 	/**
 	 * Gets the friction (slipperiness) of this {@link org.spout.api.entity.Entity}.

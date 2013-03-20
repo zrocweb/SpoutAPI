@@ -66,6 +66,10 @@
 				<updatePolicy>always</updatePolicy>
 			</snapshots>
 		</repository>
+		<repository>
+			<id>gdx-nightlies</id>
+			<url>http://libgdx.badlogicgames.com/nightlies/maven</url>
+		</repository>
 	</repositories>
 
 	<!-- Build plugin repositories -->
@@ -160,15 +164,21 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.spout</groupId>
-			<artifactId>terabullet</artifactId>
-			<version>1.0.0-SNAPSHOT</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
 			<groupId>net.sf.trove4j</groupId>
 			<artifactId>trove4j</artifactId>
 			<version>3.0.3</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.badlogic.gdx.physics</groupId>
+			<artifactId>bullet</artifactId>
+			<version>1.8.1-SNAPSHOT</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.badlogic.gdx</groupId>
+			<artifactId>gdx</artifactId>
+			<version>0.9.9-SNAPSHOT</version>
 			<scope>compile</scope>
 		</dependency>
 		<!-- Testing only -->

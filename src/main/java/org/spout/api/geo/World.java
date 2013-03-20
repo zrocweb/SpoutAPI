@@ -27,14 +27,12 @@
 package org.spout.api.geo;
 
 import java.io.File;
-import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
 import org.spout.api.Engine;
 import org.spout.api.component.Component;
 import org.spout.api.component.ComponentHolder;
-import org.spout.api.component.type.EntityComponent;
 import org.spout.api.data.DataSubject;
 import org.spout.api.entity.Entity;
 import org.spout.api.entity.EntityPrefab;
@@ -46,7 +44,6 @@ import org.spout.api.generator.biome.BiomeManager;
 import org.spout.api.geo.discrete.Point;
 import org.spout.api.geo.discrete.Transform;
 import org.spout.api.lighting.LightingManager;
-import org.spout.api.map.DefaultedMap;
 import org.spout.api.material.BlockMaterial;
 import org.spout.api.model.Model;
 import org.spout.api.scheduler.TaskManager;

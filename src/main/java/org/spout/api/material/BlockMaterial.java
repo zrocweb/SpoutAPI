@@ -47,14 +47,13 @@ import org.spout.api.material.block.BlockFaces;
 import org.spout.api.material.range.EffectRange;
 import org.spout.api.math.GenericMath;
 import org.spout.api.math.Vector3;
-import org.spout.api.model.Model;
 import org.spout.api.resource.SpoutModels;
 import org.spout.api.util.bytebit.ByteBitSet;
 import org.spout.api.util.flag.Flag;
 
-import com.bulletphysics.collision.dispatch.CollisionObject;
-import com.bulletphysics.collision.shapes.BoxShape;
-import com.bulletphysics.collision.shapes.CollisionShape;
+import com.badlogic.gdx.physics.bullet.btBoxShape;
+import com.badlogic.gdx.physics.bullet.btCollisionObject;
+import com.badlogic.gdx.physics.bullet.btCollisionShape;
 
 /**
  * Defines the specific characteristics of a Block
@@ -73,8 +72,8 @@ public class BlockMaterial extends Material implements Placeable {
 	public static final BlockMaterial SKYBOX = new BasicSkyBox();
 	public static final BlockMaterial ERROR = new BlockMaterial("Missing Plugin").setHardness((100.f));
 
-	private final CollisionObject collisionObject = new CollisionObject();
-	private final BoxShape BLOCK_BOX_DEFAULT = new BoxShape(1f, 1f, 1f);
+	private final btCollisionObject collisionObject = new btCollisionObject();
+	private final btBoxShape BLOCK_BOX_DEFAULT = new btBoxShape(new com.badlogic.gdx.math.Vector3(1, 1, 1));
 
 	public BlockMaterial(short dataMask, String name, String model){
 		super(dataMask, name, model);
@@ -617,7 +616,7 @@ public class BlockMaterial extends Material implements Placeable {
 	 * Gets the collision shape this block material has.
 	 * @return CollisionShape
 	 */
-	public CollisionShape getCollisionShape() {
+	public btCollisionShape getCollisionShape() {
 		return collisionObject.getCollisionShape();
 	}
 
@@ -627,7 +626,7 @@ public class BlockMaterial extends Material implements Placeable {
 	 * 
 	 * @param shape The new collision shape of this block material
 	 */
-	public BlockMaterial setCollisionShape(CollisionShape shape) {
+	public BlockMaterial setCollisionShape(btCollisionShape shape) {
 		collisionObject.setCollisionShape(shape);
 		if (shape == null) {
 			collision.setStrategy(CollisionStrategy.NOCOLLIDE);
