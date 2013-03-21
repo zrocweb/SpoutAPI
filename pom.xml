@@ -118,7 +118,7 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.badlogic</groupId>
+			<groupId>com.badlogic.gdx</groupId>
 			<artifactId>gdx</artifactId>
 			<version>0.9.9-SNAPSHOT</version>
 			<scope>compile</scope>
