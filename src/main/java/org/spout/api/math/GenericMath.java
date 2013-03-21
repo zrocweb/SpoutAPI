@@ -790,12 +790,10 @@ public class GenericMath {
 	}
 
 	public static btTransform toPhysicsTransform(Transform transform) {
-		final btTransform physicsTransform = new btTransform();
 		final com.badlogic.gdx.math.Vector3 worldSpace = VectorMath.toVector3f(transform.getPosition());
 		final com.badlogic.gdx.math.Quaternion worldRotation = QuaternionMath.toQuaternionf(transform.getRotation());
-		physicsTransform.setRotation(worldRotation);
-		physicsTransform.setOrigin(worldSpace);
-		return physicsTransform;
+		
+		return new btTransform(worldRotation, worldSpace);
 	}
 
 	public static Transform toSceneTransform(Transform liveState, btTransform transform) {

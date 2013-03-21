@@ -51,6 +51,7 @@ import org.spout.api.resource.SpoutModels;
 import org.spout.api.util.bytebit.ByteBitSet;
 import org.spout.api.util.flag.Flag;
 
+import com.badlogic.gdx.physics.bullet.Bullet;
 import com.badlogic.gdx.physics.bullet.btBoxShape;
 import com.badlogic.gdx.physics.bullet.btCollisionObject;
 import com.badlogic.gdx.physics.bullet.btCollisionShape;
@@ -59,6 +60,9 @@ import com.badlogic.gdx.physics.bullet.btCollisionShape;
  * Defines the specific characteristics of a Block
  */
 public class BlockMaterial extends Material implements Placeable {
+	static {
+		Bullet.init();
+	}
 	public static final BlockMaterial AIR = new BasicAir();
 	public static final BlockMaterial SOLID = new BasicSolid("SolidBlue", SpoutModels.SOLID_BLUE);
 	public static final BlockMaterial SOLID_BROWN = new BasicSolid("SolidBrown", SpoutModels.SOLID_BROWN);

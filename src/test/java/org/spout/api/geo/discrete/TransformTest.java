@@ -37,9 +37,13 @@ import org.spout.api.math.Quaternion;
 import org.spout.api.math.QuaternionMath;
 import org.spout.api.math.Vector3;
 
+import com.badlogic.gdx.physics.bullet.Bullet;
 import com.badlogic.gdx.physics.bullet.btTransform;
 
 public class TransformTest {
+	static {
+		Bullet.init();
+	}
 	@Test
 	public void test() {
 		World mock = PowerMockito.mock(World.class);
@@ -97,8 +101,7 @@ public class TransformTest {
 		assertTrue(physicsSpace.y == p.getY());
 		assertTrue(physicsSpace.z == p.getZ());
 		//Test Physics Rotation
-		com.badlogic.gdx.math.Quaternion physicsRotation = new com.badlogic.gdx.math.Quaternion();
-		physicsTransform.setRotation(physicsRotation);
+		com.badlogic.gdx.math.Quaternion physicsRotation = physicsTransform.getRotation();
 		assertTrue(physicsRotation.w == q.getW());
 		assertTrue(physicsRotation.x == q.getX());
 		assertTrue(physicsRotation.y == q.getY());

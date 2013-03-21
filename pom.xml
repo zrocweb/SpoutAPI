@@ -176,6 +176,12 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
+			<groupId>com.badlogic.gdx.physics</groupId>
+			<artifactId>natives-bullet</artifactId>
+			<version>1.8.1-SNAPSHOT</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
 			<groupId>com.badlogic.gdx</groupId>
 			<artifactId>gdx</artifactId>
 			<version>0.9.9-SNAPSHOT</version>
@@ -346,8 +352,25 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>2.12.4</version>
 				<configuration>
+					<forkMode>once</forkMode>
 					<redirectTestOutputToFile>true</redirectTestOutputToFile>
+					<argLine>-Djava.library.path=${project.basedir}/natives</argLine>
 				</configuration>
+			</plugin>
+			<!-- Natives plugin -->
+			<plugin>
+				<groupId>com.googlecode.mavennatives</groupId>
+				<artifactId>maven-nativedependencies-plugin</artifactId>
+				<version>0.0.7</version>
+				<executions>
+					<execution>
+						<id>unpacknatives</id>
+						<phase>generate-resources</phase>
+						<goals>
+								<goal>copy</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 
