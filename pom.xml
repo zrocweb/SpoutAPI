@@ -177,9 +177,10 @@
 		</dependency>
 		<dependency>
 			<groupId>com.badlogic.gdx.physics</groupId>
-			<artifactId>natives-bullet</artifactId>
+			<artifactId>bullet</artifactId>
 			<version>1.8.1-SNAPSHOT</version>
 			<scope>compile</scope>
+			<classifier>natives-all</classifier>
 		</dependency>
 		<dependency>
 			<groupId>com.badlogic.gdx</groupId>
@@ -354,7 +355,7 @@
 				<configuration>
 					<forkMode>once</forkMode>
 					<redirectTestOutputToFile>true</redirectTestOutputToFile>
-					<argLine>-Djava.library.path=${project.basedir}/natives</argLine>
+					<argLine>-Djava.library.path=target/natives</argLine>
 				</configuration>
 			</plugin>
 			<!-- Natives plugin -->
