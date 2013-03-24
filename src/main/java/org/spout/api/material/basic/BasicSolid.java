@@ -29,7 +29,6 @@ package org.spout.api.material.basic;
 import org.spout.api.material.BlockMaterial;
 
 public class BasicSolid extends BlockMaterial {
-
 	public BasicSolid(String name, String model) {
 		super((short)0, name, model);		
 		
