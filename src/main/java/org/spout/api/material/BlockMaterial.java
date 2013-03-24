@@ -27,12 +27,9 @@
 package org.spout.api.material;
 
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Set;
 
-import org.spout.api.collision.BoundingBox;
-import org.spout.api.collision.CollisionModel;
-import org.spout.api.collision.CollisionStrategy;
-import org.spout.api.collision.CollisionVolume;
 import org.spout.api.entity.Entity;
 import org.spout.api.event.Cause;
 import org.spout.api.event.cause.MaterialCause;
@@ -51,10 +48,12 @@ import org.spout.api.resource.SpoutModels;
 import org.spout.api.util.bytebit.ByteBitSet;
 import org.spout.api.util.flag.Flag;
 
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.physics.bullet.Bullet;
-import com.badlogic.gdx.physics.bullet.btBoxShape;
-import com.badlogic.gdx.physics.bullet.btCollisionObject;
 import com.badlogic.gdx.physics.bullet.btCollisionShape;
+import com.badlogic.gdx.physics.bullet.btCompoundShape;
+import com.badlogic.gdx.physics.bullet.btDefaultMotionState;
+import com.badlogic.gdx.physics.bullet.btRigidBody;
 
 /**
  * Defines the specific characteristics of a Block
@@ -76,35 +75,40 @@ public class BlockMaterial extends Material implements Placeable {
 	public static final BlockMaterial SKYBOX = new BasicSkyBox();
 	public static final BlockMaterial ERROR = new BlockMaterial("Missing Plugin").setHardness((100.f));
 
-	private final btCollisionObject collisionObject = new btCollisionObject();
-	private final btBoxShape BLOCK_BOX_DEFAULT = new btBoxShape(new com.badlogic.gdx.math.Vector3(1, 1, 1));
+	private ByteBitSet occlusion = new ByteBitSet(BlockFaces.NESWBT);
+	private float hardness = 0F;
+	private float friction = 0F;
+	private byte opacity = 0xF;
+	private boolean invisible = false;
+
+	//Bullet physics
+	private static final Matrix4 PHYSICS_MATRIX = new Matrix4();
+	private final LinkedList<Vector3> shapeLocationsList = new LinkedList<Vector3>();
+	private final btCompoundShape materialShape = new btCompoundShape(false);
+	private final btRigidBody materialBody;
 
 	public BlockMaterial(short dataMask, String name, String model){
 		super(dataMask, name, model);
-		collisionObject.setCollisionShape(BLOCK_BOX_DEFAULT);
-		collisionObject.setRestitution(0f);
-		collisionObject.setFriction(1f);
+		materialBody = new btRigidBody(0.0f, new btDefaultMotionState(), materialShape, new com.badlogic.gdx.math.Vector3(0f, 0f, 0f));
+		materialBody.setCollisionShape(materialShape);
 	}
 
 	public BlockMaterial(String name, int data, Material parent, String model) {
 		super(name, data, parent, model);
-		collisionObject.setCollisionShape(BLOCK_BOX_DEFAULT);
-		collisionObject.setRestitution(0f);
-		collisionObject.setFriction(1f);
+		materialBody = new btRigidBody(0.0f, new btDefaultMotionState(), materialShape, new com.badlogic.gdx.math.Vector3(0f, 0f, 0f));
+		materialBody.setCollisionShape(materialShape);
 	}
 
 	protected BlockMaterial(String name, short id) {
 		super(name, id);
-		collisionObject.setCollisionShape(BLOCK_BOX_DEFAULT);
-		collisionObject.setRestitution(0f);
-		collisionObject.setFriction(1f);
+		materialBody = new btRigidBody(0.0f, new btDefaultMotionState(), materialShape, new com.badlogic.gdx.math.Vector3(0f, 0f, 0f));
+		materialBody.setCollisionShape(materialShape);
 	}
 
 	protected BlockMaterial(String name) {
 		super(name);
-		collisionObject.setCollisionShape(BLOCK_BOX_DEFAULT);
-		collisionObject.setRestitution(0f);
-		collisionObject.setFriction(1f);
+		materialBody = new btRigidBody(0.0f, new btDefaultMotionState(), materialShape, new com.badlogic.gdx.math.Vector3(0f, 0f, 0f));
+		materialBody.setCollisionShape(materialShape);
 	}
 
 	/**
@@ -159,13 +163,6 @@ public class BlockMaterial extends Material implements Placeable {
 
 		return (BlockMaterial) mat;
 	}
-
-	private ByteBitSet occlusion = new ByteBitSet(BlockFaces.NESWBT);
-	private float hardness = 0F;
-	private float friction = 0F;
-	private byte opacity = 0xF;
-	private boolean invisible = false;
-	private final CollisionModel collision = new CollisionModel(new BoundingBox(0F, 0F, 0F, 1F, 1F, 1F));
 
 	@Override
 	public BlockMaterial getSubMaterial(short data) {
@@ -404,44 +401,6 @@ public class BlockMaterial extends Material implements Placeable {
 	}
 
 	/**
-	 * Gets the bounding box area of this material
-	 * 
-	 * @return area
-	 */
-	public CollisionVolume getBoundingArea() {
-		return this.collision.getVolume();
-	}
-	
-	/**
-	 * Gets the collision model associated with this block material
-	 * 
-	 * @return the collision model
-	 */
-	public CollisionModel getCollisionModel() {
-		return this.collision;
-	}
-
-	/**
-	 * True if this block has collision,
-	 * false if not.
-	 * 
-	 * @return if this block has collision
-	 */
-	public boolean hasCollision() {
-		return this.collision.getStrategy() != CollisionStrategy.NOCOLLIDE;
-	}
-	
-	/**
-	 * True if this block is a solid block
-	 * false if not.
-	 * 
-	 * @return if this block has collision
-	 */
-	public boolean isSolid() {
-		return this.collision.getStrategy() == CollisionStrategy.SOLID;
-	}
-
-	/**
 	 * Gets the occluded faces of this Block Material for the data value specified<br>
 	 * Occluded faces do not let light though and require rendering behind it at those faces
 	 * 
@@ -486,17 +445,6 @@ public class BlockMaterial extends Material implements Placeable {
 	 */
 	public boolean isFaceRendered(BlockFace face, BlockMaterial material) {
 		return true;
-	}
-
-	/**
-	 * Sets the collision strategy to use for this block
-	 * 
-	 * @param strategy
-	 * @return this block material
-	 */
-	public BlockMaterial setCollision(CollisionStrategy strategy) {
-		this.collision.setStrategy(strategy);
-		return this;
 	}
 
 	@Override
@@ -608,8 +556,8 @@ public class BlockMaterial extends Material implements Placeable {
 	 * Helper method to create a MaterialCause.
 	 * 
 	 * Same as using new MaterialCause(material, block)
-	 * 
-	 * @param block location of the event
+	 *
+	 * @param p
 	 * @return cause
 	 */
 	public Cause<BlockMaterial> toCause(Point p) {
@@ -617,24 +565,30 @@ public class BlockMaterial extends Material implements Placeable {
 	}
 
 	/**
-	 * Gets the collision shape this block material has.
-	 * @return CollisionShape
+	 * Returns whether this material has any {@link btCollisionShape} shapes within the world.
+	 * @return True if the material has shapes in the world, false if not
 	 */
-	public btCollisionShape getCollisionShape() {
-		return collisionObject.getCollisionShape();
+	public boolean hasCollision() {
+		return this.materialShape.getNumChildShapes() > 0;
 	}
 
 	/**
-	 * Sets the CollisionShape of this block material<br>
-	 * If null is specified, it is assumed that this block has no collision
-	 * 
-	 * @param shape The new collision shape of this block material
+	 * Adds a new shape at the provided x, y, z for this material
+	 * @param pos
+	 * @param shape
 	 */
-	public BlockMaterial setCollisionShape(btCollisionShape shape) {
-		collisionObject.setCollisionShape(shape);
-		if (shape == null) {
-			collision.setStrategy(CollisionStrategy.NOCOLLIDE);
+	public void addShape(Vector3 pos, btCollisionShape shape) {
+		PHYSICS_MATRIX.setTranslation(new com.badlogic.gdx.math.Vector3(pos.getX(), pos.getY(), pos.getZ()));
+		shapeLocationsList.add(pos);
+		//TODO I am assuming that if the position already exists in the material shape list this will replace without touching indices. Best verify...
+		materialShape.addChildShape(PHYSICS_MATRIX, shape);
+	}
+
+	public void removeShape(Vector3 pos) {
+		if (shapeLocationsList.contains(pos)) {
+			PHYSICS_MATRIX.setTranslation(new com.badlogic.gdx.math.Vector3(pos.getX(), pos.getY(), pos.getZ()));
+			materialShape.removeChildShapeByIndex(shapeLocationsList.indexOf(pos));
+			shapeLocationsList.remove(pos);
 		}
-		return this;
 	}
 }
