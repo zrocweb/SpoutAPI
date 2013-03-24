@@ -26,6 +26,7 @@
  */
 package org.spout.api.material.basic;
 
+import org.spout.api.collision.ShapeConstants;
 import org.spout.api.material.BlockMaterial;
 
 public class BasicSolid extends BlockMaterial {
@@ -33,5 +34,6 @@ public class BasicSolid extends BlockMaterial {
 		super((short)0, name, model);		
 		
 		setHardness(100);
+		setDefaultChildShape(ShapeConstants.CUBIC_BOX_SHAPE);
 	}
 }

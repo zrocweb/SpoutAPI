@@ -62,6 +62,7 @@ public class BlockMaterial extends Material implements Placeable {
 	static {
 		Bullet.init();
 	}
+	//Pretty color blocks.
 	public static final BlockMaterial AIR = new BasicAir();
 	public static final BlockMaterial SOLID = new BasicSolid("SolidBlue", SpoutModels.SOLID_BLUE);
 	public static final BlockMaterial SOLID_BROWN = new BasicSolid("SolidBrown", SpoutModels.SOLID_BROWN);
@@ -70,10 +71,11 @@ public class BlockMaterial extends Material implements Placeable {
 	public static final BlockMaterial SOLID_RED = new BasicSolid("SolidRed", SpoutModels.SOLID_RED);
 	public static final BlockMaterial SOLID_SKYBLUE = new BasicSolid("SolidSkyBlue", SpoutModels.SOLID_SKYBLUE);
 
-	public static final BlockMaterial UNBREAKABLE = new BlockMaterial("Unbreakable").setHardness(100.f);
-	public static final BlockMaterial UNGENENERATED = new BlockMaterial("Ungenerated").setHardness(100.f);
+	//Default error blocks.
+	public static final BlockMaterial UNBREAKABLE = new BasicSolid("Unbreakable", null);
+	public static final BlockMaterial UNGENENERATED = new BasicSolid("Ungenerated", null);
 	public static final BlockMaterial SKYBOX = new BasicSkyBox();
-	public static final BlockMaterial ERROR = new BlockMaterial("Missing Plugin").setHardness((100.f));
+	public static final BlockMaterial ERROR = new BasicSolid("Missing Plugin", null);
 
 	private ByteBitSet occlusion = new ByteBitSet(BlockFaces.NESWBT);
 	private float hardness = 0F;
