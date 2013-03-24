@@ -86,6 +86,7 @@ public class BlockMaterial extends Material implements Placeable {
 	private final LinkedList<Vector3> shapeLocationsList = new LinkedList<Vector3>();
 	private final btCompoundShape materialShape = new btCompoundShape(false);
 	private final btRigidBody materialBody;
+	private btCollisionShape defaultChildShape;
 
 	public BlockMaterial(short dataMask, String name, String model){
 		super(dataMask, name, model);
@@ -573,9 +574,11 @@ public class BlockMaterial extends Material implements Placeable {
 	}
 
 	/**
-	 * Adds a new shape at the provided x, y, z for this material
-	 * @param pos
-	 * @param shape
+	 * Adds a new {@link btCollisionShape} at the provided {@link Vector3} position.
+	 *
+	 * If the position already has a shape, it will be replaced.
+	 * @param pos The position to anchor the shape at
+	 * @param shape The shape to anchor
 	 */
 	public void addShape(Vector3 pos, btCollisionShape shape) {
 		PHYSICS_MATRIX.setTranslation(new com.badlogic.gdx.math.Vector3(pos.getX(), pos.getY(), pos.getZ()));
@@ -584,11 +587,32 @@ public class BlockMaterial extends Material implements Placeable {
 		materialShape.addChildShape(PHYSICS_MATRIX, shape);
 	}
 
+	/**
+	 * Removes a shape set at the provided {@link Vector3} position.
+	 * @param pos The position in the {@link org.spout.api.geo.World}
+	 */
 	public void removeShape(Vector3 pos) {
 		if (shapeLocationsList.contains(pos)) {
 			PHYSICS_MATRIX.setTranslation(new com.badlogic.gdx.math.Vector3(pos.getX(), pos.getY(), pos.getZ()));
 			materialShape.removeChildShapeByIndex(shapeLocationsList.indexOf(pos));
 			shapeLocationsList.remove(pos);
 		}
+	}
+
+	/**
+	 * Returns the default {@link btCollisionShape} that Spout gives {@link BlockMaterial}s set in a {@link org.spout.api.geo.World}.
+	 *
+	 * @return The default shape or null if this hasn't been set.
+	 */
+	public btCollisionShape getDefaultChildShape() {
+		return defaultChildShape;
+	}
+
+	/**
+	 * Sets the default {@link btCollisionShape} which Spout will give {@link BlockMaterial}s set in a {@link org.spout.api.geo.World}.
+	 * @param defaultChildShape Default shape to set
+	 */
+	public void setDefaultChildShape(btCollisionShape defaultChildShape) {
+		this.defaultChildShape = defaultChildShape;
 	}
 }
