@@ -27,7 +27,6 @@
 package org.spout.api.material;
 
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.Set;
 
 import org.spout.api.entity.Entity;
@@ -48,12 +47,8 @@ import org.spout.api.resource.SpoutModels;
 import org.spout.api.util.bytebit.ByteBitSet;
 import org.spout.api.util.flag.Flag;
 
-import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.physics.bullet.Bullet;
 import com.badlogic.gdx.physics.bullet.btCollisionShape;
-import com.badlogic.gdx.physics.bullet.btCompoundShape;
-import com.badlogic.gdx.physics.bullet.btDefaultMotionState;
-import com.badlogic.gdx.physics.bullet.btRigidBody;
 
 /**
  * Defines the specific characteristics of a Block
@@ -84,34 +79,22 @@ public class BlockMaterial extends Material implements Placeable {
 	private boolean invisible = false;
 
 	//Bullet physics
-	private static final Matrix4 PHYSICS_MATRIX = new Matrix4();
-	private final LinkedList<Vector3> shapeLocationsList = new LinkedList<Vector3>();
-	private final btCompoundShape materialShape = new btCompoundShape(false);
-	private final btRigidBody materialBody;
-	private btCollisionShape defaultChildShape;
+	private btCollisionShape shape;
 
 	public BlockMaterial(short dataMask, String name, String model){
 		super(dataMask, name, model);
-		materialBody = new btRigidBody(0.0f, new btDefaultMotionState(), materialShape, new com.badlogic.gdx.math.Vector3(0f, 0f, 0f));
-		materialBody.setCollisionShape(materialShape);
 	}
 
 	public BlockMaterial(String name, int data, Material parent, String model) {
-		super(name, data, parent, model);
-		materialBody = new btRigidBody(0.0f, new btDefaultMotionState(), materialShape, new com.badlogic.gdx.math.Vector3(0f, 0f, 0f));
-		materialBody.setCollisionShape(materialShape);
+		super(name, data, parent, model);;
 	}
 
 	protected BlockMaterial(String name, short id) {
 		super(name, id);
-		materialBody = new btRigidBody(0.0f, new btDefaultMotionState(), materialShape, new com.badlogic.gdx.math.Vector3(0f, 0f, 0f));
-		materialBody.setCollisionShape(materialShape);
 	}
 
 	protected BlockMaterial(String name) {
 		super(name);
-		materialBody = new btRigidBody(0.0f, new btDefaultMotionState(), materialShape, new com.badlogic.gdx.math.Vector3(0f, 0f, 0f));
-		materialBody.setCollisionShape(materialShape);
 	}
 
 	/**
@@ -568,53 +551,27 @@ public class BlockMaterial extends Material implements Placeable {
 	}
 
 	/**
-	 * Returns whether this material has any {@link btCollisionShape} shapes within the world.
-	 * @return True if the material has shapes in the world, false if not
+	 * Returns if this BlockMaterial has a {@link btCollisionShape} set (meaning it has collision).
+	 * @return True if the material has a shape, false if not.
 	 */
 	public boolean hasCollision() {
-		return this.materialShape.getNumChildShapes() > 0;
+		return shape != null;
 	}
 
 	/**
-	 * Adds a new {@link btCollisionShape} at the provided {@link Vector3} position.
+	 * Returns the {@link btCollisionShape} that Spout gives {@link BlockMaterial}s set in a {@link org.spout.api.geo.World}.
 	 *
-	 * If the position already has a shape, it will be replaced.
-	 * @param pos The position to anchor the shape at
-	 * @param shape The shape to anchor
+	 * @return The shape or null if this hasn't been set.
 	 */
-	public void addShape(Vector3 pos, btCollisionShape shape) {
-		PHYSICS_MATRIX.setTranslation(new com.badlogic.gdx.math.Vector3(pos.getX(), pos.getY(), pos.getZ()));
-		shapeLocationsList.add(pos);
-		//TODO I am assuming that if the position already exists in the material shape list this will replace without touching indices. Best verify...
-		materialShape.addChildShape(PHYSICS_MATRIX, shape);
+	public btCollisionShape getShape() {
+		return shape;
 	}
 
 	/**
-	 * Removes a shape set at the provided {@link Vector3} position.
-	 * @param pos The position in the {@link org.spout.api.geo.World}
+	 * Sets the {@link btCollisionShape} which Spout will give {@link BlockMaterial}s set in a {@link org.spout.api.geo.World}.
+	 * @param shape Shape to set
 	 */
-	public void removeShape(Vector3 pos) {
-		if (shapeLocationsList.contains(pos)) {
-			PHYSICS_MATRIX.setTranslation(new com.badlogic.gdx.math.Vector3(pos.getX(), pos.getY(), pos.getZ()));
-			materialShape.removeChildShapeByIndex(shapeLocationsList.indexOf(pos));
-			shapeLocationsList.remove(pos);
-		}
-	}
-
-	/**
-	 * Returns the default {@link btCollisionShape} that Spout gives {@link BlockMaterial}s set in a {@link org.spout.api.geo.World}.
-	 *
-	 * @return The default shape or null if this hasn't been set.
-	 */
-	public btCollisionShape getDefaultChildShape() {
-		return defaultChildShape;
-	}
-
-	/**
-	 * Sets the default {@link btCollisionShape} which Spout will give {@link BlockMaterial}s set in a {@link org.spout.api.geo.World}.
-	 * @param defaultChildShape Default shape to set
-	 */
-	public void setDefaultChildShape(btCollisionShape defaultChildShape) {
-		this.defaultChildShape = defaultChildShape;
+	public void setShape(btCollisionShape shape) {
+		this.shape = shape;
 	}
 }
