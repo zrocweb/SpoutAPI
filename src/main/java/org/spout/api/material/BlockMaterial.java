@@ -47,14 +47,9 @@ import org.spout.api.material.block.BlockFaces;
 import org.spout.api.material.range.EffectRange;
 import org.spout.api.math.GenericMath;
 import org.spout.api.math.Vector3;
-import org.spout.api.model.Model;
 import org.spout.api.resource.SpoutModels;
 import org.spout.api.util.bytebit.ByteBitSet;
 import org.spout.api.util.flag.Flag;
-
-import com.bulletphysics.collision.dispatch.CollisionObject;
-import com.bulletphysics.collision.shapes.BoxShape;
-import com.bulletphysics.collision.shapes.CollisionShape;
 
 /**
  * Defines the specific characteristics of a Block
@@ -72,36 +67,20 @@ public class BlockMaterial extends Material implements Placeable {
 	public static final BlockMaterial UNGENENERATED = new BlockMaterial("Ungenerated").setHardness(100.f);
 	public static final BlockMaterial SKYBOX = new BasicSkyBox();
 	public static final BlockMaterial ERROR = new BlockMaterial("Missing Plugin").setHardness((100.f));
-
-	private final CollisionObject collisionObject = new CollisionObject();
-	private final BoxShape BLOCK_BOX_DEFAULT = new BoxShape(1f, 1f, 1f);
-
 	public BlockMaterial(short dataMask, String name, String model){
 		super(dataMask, name, model);
-		collisionObject.setCollisionShape(BLOCK_BOX_DEFAULT);
-		collisionObject.setRestitution(0f);
-		collisionObject.setFriction(1f);
 	}
 
 	public BlockMaterial(String name, int data, Material parent, String model) {
 		super(name, data, parent, model);
-		collisionObject.setCollisionShape(BLOCK_BOX_DEFAULT);
-		collisionObject.setRestitution(0f);
-		collisionObject.setFriction(1f);
 	}
 
 	protected BlockMaterial(String name, short id) {
 		super(name, id);
-		collisionObject.setCollisionShape(BLOCK_BOX_DEFAULT);
-		collisionObject.setRestitution(0f);
-		collisionObject.setFriction(1f);
 	}
 
 	protected BlockMaterial(String name) {
 		super(name);
-		collisionObject.setCollisionShape(BLOCK_BOX_DEFAULT);
-		collisionObject.setRestitution(0f);
-		collisionObject.setFriction(1f);
 	}
 
 	/**
@@ -611,27 +590,5 @@ public class BlockMaterial extends Material implements Placeable {
 	 */
 	public Cause<BlockMaterial> toCause(Point p) {
 		return new MaterialCause<BlockMaterial>(this, p.getWorld().getBlock(p));
-	}
-
-	/**
-	 * Gets the collision shape this block material has.
-	 * @return CollisionShape
-	 */
-	public CollisionShape getCollisionShape() {
-		return collisionObject.getCollisionShape();
-	}
-
-	/**
-	 * Sets the CollisionShape of this block material<br>
-	 * If null is specified, it is assumed that this block has no collision
-	 * 
-	 * @param shape The new collision shape of this block material
-	 */
-	public BlockMaterial setCollisionShape(CollisionShape shape) {
-		collisionObject.setCollisionShape(shape);
-		if (shape == null) {
-			collision.setStrategy(CollisionStrategy.NOCOLLIDE);
-		}
-		return this;
 	}
 }

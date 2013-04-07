@@ -34,7 +34,6 @@ public class BasicSkyBox extends BlockMaterial {
 
 	public BasicSkyBox() {
 		super("Skybox");
-		this.setCollisionShape(null).setTransparent();
 	}
 
 	@Override

@@ -26,8 +26,6 @@
  */
 package org.spout.api.math;
 
-import javax.vecmath.Quat4f;
-
 /**
  * Class containing quaternion mathematical functions.
  */
@@ -177,30 +175,11 @@ public class QuaternionMath {
 		final float roll = (float) Math.toDegrees(r1);
 		final float pitch = (float) Math.toDegrees(r2);
 		float yaw = (float) Math.toDegrees(r3);
-		if (yaw > 180) // keep -180 < yaw < 180
-		{
+		if (yaw > 180) { // keep -180 < yaw < 180
 			yaw -= 360;
 		} else if (yaw < -180) {
 			yaw += 360;
 		}
 		return new Vector3(pitch, yaw, roll);
-	}
-
-	/**
-	 * Transforms a vecmath quaternion to a Spout quaternion.
-	 * @param vector The vecmath quaternion
-	 * @return The vector as a Spout quaternion
-	 */
-	public static Quat4f toQuaternionf(Quaternion quaternion) {
-		return new Quat4f(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
-	}
-
-	/**
-	 * Transforms a Spout quaternion to a vecmath quaternion.
-	 * @param vector The Spout 3D quaternion
-	 * @return The vector as a vecmath 3D quaternion
-	 */
-	public static Quaternion toQuaternion(Quat4f quaternion) {
-		return new Quaternion(quaternion.x, quaternion.y, quaternion.z, quaternion.w, false);
 	}
 }
