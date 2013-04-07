@@ -38,21 +38,12 @@ public class CollisionHelper {
 	 * @return
 	 */
 	public static boolean checkCollision(BoundingBox a, BoundingBox b) {
-		boolean ax = a.min.getX() < b.max.getX();
-		boolean ay = a.min.getY() < b.max.getY();
-		boolean az = a.min.getZ() < b.max.getZ();
-		boolean bx = a.max.getX() > b.min.getX();
-		boolean by = a.max.getY() > b.min.getY();
-		boolean bz = a.max.getZ() > b.min.getZ();
-		return ax && ay && az && bx && by && bz;
-		/*
 		return a.min.getX() < b.max.getX() &&
 				a.min.getY() < b.max.getY() &&
 				a.min.getZ() < b.max.getZ() &&
 				a.max.getX() > b.min.getX() &&
 				a.max.getY() > b.min.getY() &&
 				a.max.getZ() > b.min.getZ();
-		*/
 	}
 
 	/**
@@ -386,7 +377,10 @@ public class CollisionHelper {
 		Vector3 max = Vector3.min(b.min, a.max);
 		min = min.subtract(a.min);
 		max = max.subtract(a.max);
-		return min.lengthSquared() > max.lengthSquared() ? max : min;
+		float x = min.getX() * min.getX() > max.getX() * max.getX() ? max.getX() : min.getX();
+		float y = min.getY() * min.getY() > max.getY() * max.getY() ? max.getY() : min.getY();
+		float z = min.getZ() * min.getZ() > max.getZ() * max.getZ() ? max.getZ() : min.getZ();
+		return new Vector3(x, y, z);
 	}
 
 	public static Vector3 getCollision(Segment a, Segment b) {
