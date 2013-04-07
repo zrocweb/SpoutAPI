@@ -38,7 +38,21 @@ public class CollisionHelper {
 	 * @return
 	 */
 	public static boolean checkCollision(BoundingBox a, BoundingBox b) {
-		return a.min.compareTo(b.max) <= 0 && a.max.compareTo(b.min) >= 0;
+		boolean ax = a.min.getX() < b.max.getX();
+		boolean ay = a.min.getY() < b.max.getY();
+		boolean az = a.min.getZ() < b.max.getZ();
+		boolean bx = a.max.getX() > b.min.getX();
+		boolean by = a.max.getY() > b.min.getY();
+		boolean bz = a.max.getZ() > b.min.getZ();
+		return ax && ay && az && bx && by && bz;
+		/*
+		return a.min.getX() < b.max.getX() &&
+				a.min.getY() < b.max.getY() &&
+				a.min.getZ() < b.max.getZ() &&
+				a.max.getX() > b.min.getX() &&
+				a.max.getY() > b.min.getY() &&
+				a.max.getZ() > b.min.getZ();
+		*/
 	}
 
 	/**

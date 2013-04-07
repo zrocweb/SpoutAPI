@@ -120,6 +120,16 @@ public class BoundingBoxTest {
 		BoundingBox f = new BoundingBox(-10, -10, -10, 0.5F, 0.5F, 0.5F);
 		assertFalse(e.intersects(f));
 		assertFalse(f.intersects(e));
+		
+		BoundingBox g = new BoundingBox(-29.0F, 63.0F, 46.0F, -28.9F, 63.1F, 46.1F);
+		BoundingBox h = new BoundingBox(-30.0F, 62.0F, 45.0F, -29.0F, 63.0F, 46.0F);
+		assertFalse(g.intersects(h));
+		assertFalse(h.intersects(g));
+		
+		BoundingBox i = new BoundingBox(-34.0F, 62.0F, 41.0F, -33.0F, 63.0F, 42.0F);
+		BoundingBox j = new BoundingBox(-33.0F, 63.0F, 42.0F, -32.9F, 63.1F, 42.1F);
+		assertFalse(i.intersects(j));
+		assertFalse(j.intersects(i));
 	}
 	
 	@Test
@@ -133,6 +143,16 @@ public class BoundingBoxTest {
 		BoundingBox d = new BoundingBox(2.5F, 2.5F, 2.5F, 3.5F, 3.5F, 3.5F);
 		assertFalse(c.containsBoundingBox(d));
 		assertFalse(d.containsBoundingBox(c));
+		
+		BoundingBox g = new BoundingBox(-29.0F, 63.0F, 46.0F, -28.9F, 63.1F, 46.1F);
+		BoundingBox h = new BoundingBox(-30.0F, 62.0F, 45.0F, -29.0F, 63.0F, 46.0F);
+		assertFalse(g.containsBoundingBox(h));
+		assertFalse(h.containsBoundingBox(g));
+		
+		BoundingBox i = new BoundingBox(-34.0F, 62.0F, 41.0F, -33.0F, 63.0F, 42.0F);
+		BoundingBox j = new BoundingBox(-33.0F, 63.0F, 42.0F, -32.9F, 63.1F, 42.1F);
+		assertFalse(i.containsBoundingBox(j));
+		assertFalse(j.containsBoundingBox(i));
 	}
 
 	@Test
