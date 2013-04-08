@@ -30,7 +30,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.spout.api.collision.BoundingBox;
-import org.spout.api.collision.CollisionModel;
 import org.spout.api.collision.CollisionStrategy;
 import org.spout.api.collision.CollisionVolume;
 import org.spout.api.entity.Entity;
@@ -141,7 +140,7 @@ public class BlockMaterial extends Material implements Placeable {
 	private float friction = 0F;
 	private byte opacity = 0xF;
 	private boolean invisible = false;
-	private final CollisionModel collision = new CollisionModel(new BoundingBox(0F, 0F, 0F, 1F, 1F, 1F));
+	private CollisionVolume collision = new BoundingBox(0F, 0F, 0F, 1F, 1F, 1F);
 
 	@Override
 	public BlockMaterial getSubMaterial(short data) {
@@ -380,21 +379,21 @@ public class BlockMaterial extends Material implements Placeable {
 	}
 
 	/**
-	 * Gets the bounding box area of this material
+	 * Gets the {@link CollisionVolume} this block has.
 	 * 
-	 * @return area
+	 * @return collision {@link CollisionVolume} this block has.
 	 */
-	public CollisionVolume getBoundingArea() {
-		return this.collision.getVolume();
-	}
-	
-	/**
-	 * Gets the collision model associated with this block material
-	 * 
-	 * @return the collision model
-	 */
-	public CollisionModel getCollisionModel() {
+	public CollisionVolume getVolume() {
 		return this.collision;
+	}
+
+	/**
+	 * Sets the {@link CollisionVolume} for this block.
+	 * 
+	 * @param collision {@link CollisionVolume} to set
+	 */
+	public void setVolume(CollisionVolume collision) {
+		this.collision = collision;
 	}
 
 	/**
