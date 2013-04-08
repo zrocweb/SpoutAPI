@@ -35,11 +35,11 @@ import org.spout.api.math.Vector3;
  *
  */
 public class CollisionModel extends CollisionVolume {
-	CollisionVolume area;
+	private CollisionVolume area;
 	
-	ArrayList<CollisionModel> children = new ArrayList<CollisionModel>();
+	private ArrayList<CollisionModel> children = new ArrayList<CollisionModel>();
 	
-	Vector3 origin;
+	private Vector3 origin;
 	
 	public CollisionModel() {
 		area = new BoundingBox();
@@ -50,29 +50,31 @@ public class CollisionModel extends CollisionVolume {
 		if (base instanceof CollisionModel) throw new IllegalArgumentException("Cannot create a collision model with a collision model as an area");
 		area = base;
 	}
-		
-	
+
+	public void setArea(CollisionVolume area) {
+		this.area = area;
+	}
+
 	public void addChild(CollisionVolume child) {
 		if (child instanceof CollisionModel) {
-			area.offset(origin);
-			children.add((CollisionModel)child);
+			area = area.offset(origin); // TODO: What...actually is this called for? It's offsetting the base area by the origin point every time a child is added? What?
+			children.add((CollisionModel) child);
 		} else {
 			CollisionModel c = new CollisionModel(child);
-			addChild(c); 
-			//recursive calls ftw
+			addChild(c);
 		}
 	}
-	
+
 	public CollisionVolume getVolume() {
 		return area;
 	}
-	
-	
+
 	@Override
-	public CollisionVolume offset(Vector3 ammount) {
-		origin = origin.add(ammount);
+	public CollisionVolume offset(Vector3 amount) {
+		// TODO: This method is broken for now, not updated for immutable collision objects.
+		origin = origin.add(amount);
 		for (CollisionModel m : children) {
-			m.offset(ammount);
+			m.offset(amount);
 		}
 		return this;
 	}
@@ -80,12 +82,17 @@ public class CollisionModel extends CollisionVolume {
 	@Override
 	public boolean intersects(CollisionVolume other) {
 		if (other instanceof CollisionModel) {
-			if (!area.intersects(((CollisionModel)other).getVolume())) return false;
+			if (!area.intersects(((CollisionModel) other).getVolume()))
+				return false;
 		}
-		if (!area.intersects(other)) return false; //Check us
-		if (children.size() > 0) return true; //We intersect and have no children, it intersects.
+		if (!area.intersects(other)) {
+			return false; // Return false if this volume doesn't intersect at all
+		}
+		if (children.size() == 0) {
+			return true; // Return true if we have no children, and we intersected above
+		}
 		for (CollisionModel m : children) {
-			if (m.intersects(other)) return true;
+			if (m.intersects(other)) return true; // Return true if any children intersect
 		}
 		return false;
 	}
@@ -95,22 +102,30 @@ public class CollisionModel extends CollisionVolume {
 		if (other instanceof CollisionModel) {
 			if (!area.contains(((CollisionModel)other).getVolume())) return false;
 		}
-		if (!area.contains(other)) return false; //Check us
-		if (children.size() > 0) return true; //We intersect and have no children, it intersects.
+		if (!area.contains(other)) {
+			return false; // Return false if this volume doesn't contain the other at all
+		}
+		if (children.size() == 0) {
+			return true; // Return true if we have no children, and we contained the other above
+		}
 		//TODO: Make this a breadth first search.  Right now it's depth first and it will be slow.
 		for (CollisionModel m : children) {
-			if (m.contains(other)) return true;
+			if (m.contains(other)) return true; // Return true if any children contain the other
 		}
 		return false;
 	}
 
 	@Override
 	public boolean containsPoint(Vector3 b) {
-		if (!area.containsPoint(b)) return false; //Check us
-		if (children.size() > 0) return true; //We intersect and have no children, it intersects.
+		if (!area.containsPoint(b)) {
+			return false; // Return false if this volume doesn't contain the point at all
+		}
+		if (children.size() == 0) {
+			return true; // Return true if we have no children, and we contained the point above
+		}
 		//TODO: Make this a breadth first search.  Right now it's depth first and it will be slow.
 		for (CollisionModel m : children) {
-			if (m.containsPoint(b)) return true;
+			if (m.containsPoint(b)) return true; // Return true if any children contain the point
 		}
 		return false;
 	}
@@ -119,7 +134,10 @@ public class CollisionModel extends CollisionVolume {
 	public Vector3 resolve(CollisionVolume other) {
 		
 		//TODO make this resolve with children
-		if (other instanceof CollisionModel) return area.resolve(((CollisionModel)other).getVolume());
+		if (other instanceof CollisionModel) {
+			return area.resolve(((CollisionModel)other).getVolume());
+		}
+
 		return area.resolve(other);
 	}
 
