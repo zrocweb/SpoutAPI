@@ -37,14 +37,41 @@ public final class BoundingBox extends CollisionVolume implements Cloneable {
 	protected Vector3 min;
 	protected Vector3 max;
 
+	/**
+	 * Constructs a bounding box with the minimum and maximum x, y, z values
+	 * @param minX
+	 * @param minY
+	 * @param minZ
+	 * @param maxX
+	 * @param maxY
+	 * @param maxZ
+	 */
 	public BoundingBox(float minX, float minY, float minZ, float maxX, float maxY, float maxZ) {
 		this(new Vector3(minX, minY, minZ), new Vector3(maxX, maxY, maxZ));
 	}
 
-	public BoundingBox(Vector3 pos) {
-		this(new Vector3(pos), new Vector3(pos.add(Vector3.ONE)));
+	/**
+	 * Constructs a bounding box with a center of 0, 0, 0 and half-extents of the x, y, z values
+	 * 
+	 * @param hx half extent in x
+	 * @param hy half extent in y
+	 * @param hz half extent in z
+	 */
+	public BoundingBox(float hx, float hy, float hz) {
+		this(new Vector3(hx, hy, hz));
+	}
+	/**
+	 * Constructs a bounding box with a center of 0, 0, 0 and half-extents of the given vector
+	 * 
+	 * @param halfExtents
+	 */
+	public BoundingBox(Vector3 halfExtents) {
+		this(halfExtents.multiply(-0.5F), halfExtents.multiply(0.5F));
 	}
 
+	/**
+	 * Constructs a bounding box from 0, 0, 0 to 1, 1, 1.
+	 */
 	public BoundingBox() {
 		this(Vector3.ZERO, Vector3.ONE);
 	}
@@ -58,6 +85,12 @@ public final class BoundingBox extends CollisionVolume implements Cloneable {
 		this(box.min, box.max);
 	}
 
+	/**
+	 * Constructs a bounding box with the given minimum and maximum vectors
+	 * 
+	 * @param min
+	 * @param max
+	 */
 	public BoundingBox(Vector3 min, Vector3 max) {
 		order(min, max);
 	}
