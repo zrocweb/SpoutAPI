@@ -24,11 +24,46 @@
  * License and see <http://spout.in/licensev1> for the full license, including
  * the MIT license.
  */
-package org.spout.api.chat.completion;
+package org.spout.api.command;
+
+import java.util.Set;
 
 /**
- * Represents whether a regex match should be checked for in the current word or the whole line.
+ * Handles the creation and accessibility of {@link Command}s.
  */
-public enum MatchLocation {
-	WORD, LINE;
+public interface CommandManager {
+	/**
+	 * Returns a set of all commands.
+	 *
+	 * @return all commands
+	 */
+	public Set<Command> getCommands();
+
+	/**
+	 * Returns the command with the specified name/alias or creates a new
+	 * command unless otherwise specified.
+	 *
+	 * @param cmd to create
+	 * @param createIfAbsent true if create if command not found
+	 * @return command with specified name
+	 */
+	public Command getCommand(String cmd, boolean createIfAbsent);
+
+	/**
+	 * Returns the command with the specified name/alias or creates a new
+	 * command unless otherwise specified.
+	 *
+	 * @param cmd to create
+	 * @return command with specified name
+	 */
+	public Command getCommand(String cmd);
+
+	/**
+	 * Returns the command with the specified identifier and returns null if
+	 * non-existent.
+	 *
+	 * @param id to get
+	 * @return command with specified id
+	 */
+	public Command getCommand(int id);
 }

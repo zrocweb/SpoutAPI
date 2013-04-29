@@ -24,21 +24,16 @@
  * License and see <http://spout.in/licensev1> for the full license, including
  * the MIT license.
  */
-package org.spout.api.chat.channel;
-
-import org.spout.api.command.CommandSource;
+package org.spout.api.command.annotated;
 
 /**
- * A factory to create new chat channel instances
+ * Represents a filter of a command. Specified filter class must have an empty constructor.
  */
-public interface ChatChannelFactory {
+public @interface CommandFilter {
 	/**
-	 * Returns a ChatChannel instance to be used as the channel for {@code source}.
-	 * Does not necessarily have to be a new instance of a channel object,
-	 * as channel objects can be shared by multiple users.
+	 * Filters to validate before execution.
 	 *
-	 * @param source The source the resulting channel will be attached to
-	 * @return The new channel object
+	 * @return filters
 	 */
-	public ChatChannel create(CommandSource source);
+	public Class<? extends org.spout.api.command.filter.CommandFilter>[] value();
 }

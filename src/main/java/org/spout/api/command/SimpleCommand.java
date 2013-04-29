@@ -29,271 +29,151 @@ package org.spout.api.command;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import javax.annotation.Nullable;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
-import org.apache.commons.lang3.Validate;
-import org.spout.api.chat.ChatArguments;
-import org.spout.api.chat.ChatSection;
-import org.spout.api.chat.completion.CompletionRequest;
-import org.spout.api.chat.completion.CompletionResponse;
-import org.spout.api.chat.style.ChatStyle;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import org.spout.api.command.filter.CommandFilter;
 import org.spout.api.exception.CommandException;
-import org.spout.api.exception.CommandUsageException;
-import org.spout.api.exception.MissingCommandException;
-import org.spout.api.exception.WrappedCommandException;
-import org.spout.api.util.Named;
-import org.spout.api.util.StringUtil;
-
-import gnu.trove.set.TCharSet;
-import gnu.trove.set.hash.TCharHashSet;
+import org.spout.api.util.SpoutToStringStyle;
 
 public class SimpleCommand implements Command {
-	protected final Map<String, Command> children = new HashMap<String, Command>();
-	private CommandExecutor executor;
-	protected Command parent;
-	private final Named owner;
-	private boolean locked;
-	protected List<String> aliases = new ArrayList<String>();
-	protected RawCommandExecutor rawExecutor;
-	protected String help;
-	protected String usage;
-	protected final TCharSet valueFlags = new TCharHashSet();
-	protected final TCharSet flags = new TCharHashSet();
-	protected String[] permissions = new String[0];
-	protected boolean requireAllPermissions;
-	protected int minArgLength = 0, maxArgLength = -1;
+	private static int UNUSED_ID = -1;
+	private final String name;
+	private final int id;
+	private final List<String> aliases = new ArrayList<String>();
+	private final Set<String> permissions = new HashSet<String>();
+	private final Set<Command> children = new HashSet<Command>();
+	private boolean requiresAllPermissions;
+	private String help, usage;
+	private int minArgs = 0, maxArgs = -1;
+	private Executor executor;
+	private Set<CommandFilter> filters = new HashSet<CommandFilter>();
 
-	public SimpleCommand(Named owner, String... names) {
-		Validate.notNull(owner);
-		Validate.noNullElements(names);
+	protected SimpleCommand(String name, String... names) {
+		this.name = name;
+		id = ++UNUSED_ID;
 		aliases.addAll(Arrays.asList(names));
-		this.owner = owner;
+		aliases.add(name);
 	}
 
 	@Override
-	public SimpleCommand addSubCommand(Named owner, String primaryName) {
-		boolean wasLocked = false;
-		if (isLocked()) {
-			if (unlock(owner)) {
-				wasLocked = true;
-			} else {
-				return this;
-			}
-		}
-		primaryName = primaryName.toLowerCase();
-		SimpleCommand sub = createSub(owner, primaryName);
-		while (children.containsKey(primaryName)) {
-			primaryName = owner.getName().toLowerCase() + ":" + primaryName;
-		}
-
-		children.put(primaryName, sub);
-		sub.parent = this;
-		if (wasLocked) {
-			lock(owner);
-		}
-		return sub;
-	}
-
-	protected SimpleCommand createSub(Named owner, String... aliases) {
-		return new SimpleCommand(owner, aliases);
+	public void execute(CommandSource source, String... args) throws CommandException {
+		execute(source, new CommandArguments(args));
 	}
 
 	@Override
-	public <T> Command addSubCommands(Named owner, T object, CommandRegistrationsFactory<T> factory) {
-		factory.create(owner, object, this);
-		return this;
-	}
-
-	@Override
-	public Command closeSubCommand() {
-		if (parent == null) {
-			throw new UnsupportedOperationException("This command has no parent");
+	public void execute(CommandSource source, CommandArguments args) throws CommandException {
+		if (executor == null) {
+			throw new CommandException("Command exists but has no set executor.");
 		}
-		lock(owner);
-		return parent;
-	}
 
-	@Override
-	public Command addAlias(String... names) {
-		if (!isLocked()) {
-			if (parent != null) {
-				boolean changed = false;
-				for (String name : names) {
-					if (!parent.hasChild(name)) {
-						aliases.add(name);
-						changed = true;
+		// check permissions
+		if (!hasPermission(source)) {
+			throw new CommandException("You do not have permission to execute this command.");
+		}
+
+		// check argument count
+		int len = args.length();
+		if (len < minArgs) {
+			source.sendMessage("Not enough arguments. (minimum " + minArgs + ")");
+			throw new CommandException(getUsage());
+		} else if (maxArgs >= 0 && len > maxArgs) { // -1 signifies infinite arguments
+			source.sendMessage("Too many arguments. (maximum " + maxArgs + ")");
+			throw new CommandException(getUsage());
+		}
+
+		// execute a child if applicable
+		if (args.length() > 0) {
+			String childRoot = args.getString(0);
+			List<String> childArgs = new ArrayList<String>(args.get());
+			childArgs.remove(0);
+			for (Command child : children) {
+				for (String alias : child.getAliases()) {
+					if (alias.equalsIgnoreCase(childRoot)) {
+						child.execute(source, new CommandArguments(childArgs));
+						return;
 					}
 				}
-				if (changed) {
-					parent.updateAliases(this);
-				}
-			} else {
-				aliases.addAll(Arrays.asList(names));
 			}
 		}
-		return this;
-	}
 
-	@Override
-	public Command setHelp(String help) {
-		if (!isLocked()) {
-			this.help = help;
+		// no child found, try to execute
+		for (CommandFilter filter : filters) {
+			filter.validate(this, source, args);
 		}
-		return this;
+		executor.execute(source, this, args);
 	}
 
 	@Override
-	public Command setUsage(String usage) {
-		if (!isLocked()) {
-			this.usage = usage;
-		}
-		return this;
+	public Executor getExecutor() {
+		return executor;
 	}
 
 	@Override
-	public Command setExecutor(CommandExecutor executor) {
+	public Command setExecutor(Executor executor) {
 		this.executor = executor;
 		return this;
 	}
 
 	@Override
-	public CommandExecutor getExecutor() {
-		return executor;
+	public Set<CommandFilter> getFilters() {
+		return filters;
 	}
 
 	@Override
-	public Command addFlags(String flagString) {
-		Validate.notNull(flagString);
-		if (!isLocked()) {
-			char[] raw = flagString.toCharArray();
-			for (int i = 0; i < raw.length; ++i) {
-				if (raw.length > i + 1 && raw[i + 1] == ':') {
-					valueFlags.add(raw[i]);
-					++i;
-				} else {
-					flags.add(raw[i]);
-				}
-			}
-		}
+	public Command addFilter(CommandFilter... filter) {
+		filters.addAll(Arrays.asList(filter));
 		return this;
 	}
 
 	@Override
-	public void execute(CommandSource source, String name, List<ChatSection> args, int baseIndex, boolean fuzzyLookup) throws CommandException {
-		Validate.notNull(source);
-		Validate.notNull(name);
-		Validate.notNull(args);
-
-		if (rawExecutor != null) {
-			rawExecutor.execute(this, source, name, args, baseIndex, fuzzyLookup);
-			return;
-		}
-
-		if (args.size() > baseIndex && children.size() > 0) {
-			Command sub = null;
-			if (args.size() > baseIndex) {
-				sub = getChild(args.get(baseIndex).getPlainString(), fuzzyLookup);
-			}
-
-			if (sub != null) {
-				sub.execute(source, name, args, ++baseIndex, fuzzyLookup);
-				return;
-			} else if (executor == null) {
-				throw getMissingChildException(getUsage(name, args, baseIndex));
-			}
-		}
-
-		if (executor == null || baseIndex > args.size()) {
-			throw new MissingCommandException("No command found!", getUsage(name, args, baseIndex));
-		}
-
-		if (!hasPermission(source)) {
-			throw new CommandException("You do not have the required permissions!");
-		}
-		final List<ChatSection> originalArgs = args;
-		args = new ArrayList<ChatSection>(originalArgs.size() - baseIndex);
-		for (int i = 0; i < originalArgs.size(); ++i) {
-			if (i >= baseIndex) {
-				args.add(originalArgs.get(i));
-			}
-		}
-
-		CommandContext context = new CommandContext(name, args, valueFlags);
-		for (char flag : context.getFlags().toArray()) {
-			if (!flags.contains(flag)) {
-				throw new CommandUsageException("Unknown flag:" + flag, getUsage(name, originalArgs, baseIndex));
-			}
-		}
-
-		if (context.length() < minArgLength) {
-			throw new CommandUsageException("Not enough arguments", getUsage(name, originalArgs, baseIndex));
-		}
-		if (maxArgLength >= 0 && context.length() > maxArgLength) {
-			throw new CommandUsageException("Too many arguments", getUsage(name, originalArgs, baseIndex));
-		}
-
-		try {
-			executor.processCommand(source, this, context);
-		} catch (CommandException e) {
-			throw e;
-		} catch (Throwable t) {
-			throw new WrappedCommandException(t);
-		}
+	public Set<Command> getChildren() {
+		return Collections.unmodifiableSet(children);
 	}
 
 	@Override
-	public boolean process(CommandSource source, String name, ChatArguments args, boolean fuzzyLookup) {
-		try {
-			execute(source, name, args.toSections(ChatSection.SplitType.WORD), 0, fuzzyLookup);
-			return true;
-		} catch (WrappedCommandException e) {
-			if (e.getCause() instanceof NumberFormatException) {
-				source.sendMessage(ChatStyle.RED, "Number expected; string given!");
-			} else {
-				source.sendMessage(ChatStyle.RED, "Internal error executing command!");
-				source.sendMessage(ChatStyle.RED, "Error: ", e.getMessage(), "; See console for details.");
-				e.printStackTrace();
+	public Command getChild(String name, boolean createIfAbsent) {
+		for (Command child : children) {
+			for (String alias : child.getAliases()) {
+				if (alias.equalsIgnoreCase(name)) {
+					return child;
+				}
 			}
-		} catch (CommandUsageException e) {
-			source.sendMessage(ChatStyle.RED, e.getMessage());
-			source.sendMessage(ChatStyle.RED, e.getUsage());
-		} catch (CommandException e) {
-			source.sendMessage(ChatStyle.RED, e.getMessage());
 		}
-		return false;
-	}
 
-	public CommandException getMissingChildException(String usage) {
-		return new MissingCommandException("Child command needed!", usage);
-	}
+		Command command = null;
+		if (createIfAbsent) {
+			children.add(command = new SimpleCommand(name));
+		}
 
-	@Override
-	public String getPreferredName() {
-		return aliases.get(0);
+		return command;
 	}
 
 	@Override
-	public Set<Command> getChildCommands() {
-		return new HashSet<Command>(children.values());
+	public Command getChild(String name) {
+		return getChild(name, true);
 	}
 
 	@Override
-	public Set<String> getChildNames() {
-		return new HashSet<String>(children.keySet());
+	public List<String> getAliases() {
+		return Collections.unmodifiableList(aliases);
 	}
 
 	@Override
-	public List<String> getNames() {
-		return new ArrayList<String>(aliases);
+	public Command addAlias(String... alias) {
+		aliases.addAll(Arrays.asList(alias));
+		return this;
+	}
+
+	@Override
+	public Command removeAlias(String... alias) {
+		aliases.removeAll(Arrays.asList(alias));
+		return this;
 	}
 
 	@Override
@@ -302,331 +182,132 @@ public class SimpleCommand implements Command {
 	}
 
 	@Override
+	public Command setHelp(String help) {
+		this.help = help;
+		return this;
+	}
+
+	@Override
 	public String getUsage() {
-		return getUsage(getPreferredName(), Collections.<ChatSection>emptyList(), 0);
+		return usage;
 	}
 
 	@Override
-	public String getUsage(String name, List<ChatSection> args, int baseIndex) {
-		ChatArguments usage = new ChatArguments("/");
-		
-		// appends every parent's preferred name after the slash
-		Command parent = this.parent;
-		while ( !(parent instanceof RootCommand) && this.parent != null ) {
-			name = parent.getPreferredName() + " " + name;
-			parent = parent.getParent();
-		}
-		usage.append(name);
-		
-		for (int i = 0; i <= baseIndex && i < args.size(); ++i) { // Add the arguments preceding the command
-			usage.append(" ");
-			usage.append(args.get(i));
-		}
-
-		usage.append(" ");
-
-		if (children.size() > 0) { // There are subcommands, print a list of them
-			usage.append("<");
-			Set<Command> childValues = new HashSet<Command>(children.values());
-			for (Iterator<Command> i = childValues.iterator(); i.hasNext();) {
-				usage.append(i.next().getPreferredName());
-				if (i.hasNext()) {
-					usage.append("|");
-				}
-			}
-			usage.append(">");
-		} else {
-			if (flags.size() > 0) { // We have flags, place them in front of the args
-				usage.append("[-");
-				for (char flag : flags.toArray()) {
-					usage.append(flag);
-				}
-				usage.append("] ");
-			}
-			if (this.usage != null) {
-				usage.append(this.usage); // Then manually specified usage
-			}
-		}
-		return usage.asString();
-	}
-
-	@Override
-	public Command getChild(String name) {
-		return getChild(name, false);
-	}
-
-	public Command getChild(String name, boolean fuzzyLookup) {
-		Validate.notNull(name);
-
-		name = name.toLowerCase();
-		Command command = children.get(name);
-		if (command != null) {
-			return command;
-		}
-
-		if (!fuzzyLookup) {
-			return null;
-		}
-
-		int minDistance = -1;
-		for (Map.Entry<String, Command> entry : children.entrySet()) {
-			int distance = StringUtil.getLevenshteinDistance(name, entry.getKey().toLowerCase());
-			if (minDistance < 0 || distance < minDistance) {
-				command = entry.getValue();
-				minDistance = distance;
-			}
-		}
-
-		if (minDistance <= 0) {
-			return null;
-		}
-
-		if (minDistance >= 2) {
-			return null;
-		}
-
-		return command;
-	}
-
-	@Override
-	public Command removeChild(Command cmd) {
-		if (isLocked()) {
-			return this;
-		}
-		Map<String, Command> removeAliases = new HashMap<String, Command>();
-		for (Iterator<Command> i = children.values().iterator(); i.hasNext();) {
-			Command registered = i.next();
-			if (registered.equals(cmd)) {
-				i.remove();
-				for (String alias : cmd.getNames()) {
-					Command aliasCmd = children.get(alias);
-					if (cmd.equals(aliasCmd)) {
-						removeAliases.put(alias, aliasCmd);
-					}
-				}
-			}
-		}
-		for (Map.Entry<String, Command> entry : removeAliases.entrySet()) {
-			entry.getValue().removeAlias(entry.getKey());
-		}
+	public Command setUsage(String usage) {
+		this.usage = usage;
 		return this;
 	}
 
 	@Override
-	public Command removeChild(String name) {
-		if (isLocked()) {
-			return this;
-		}
-		Command command = getChild(name, false);
-		if (command == null) {
-			return this;
-		}
-		return removeChild(command);
+	public Set<String> getPermissions() {
+		return Collections.unmodifiableSet(permissions);
 	}
 
 	@Override
-	public Command removeChildren(Named owner) {
-		if (isLocked()) {
-			return this;
-		}
-		Map<String, Command> removeAliases = new HashMap<String, Command>();
-		for (Iterator<Command> i = children.values().iterator(); i.hasNext();) {
-			Command cmd = i.next();
-			if (cmd.isOwnedBy(owner)) {
-				i.remove();
-				for (String alias : cmd.getNames()) {
-					Command aliasCmd = children.get(alias);
-					if (cmd.equals(aliasCmd)) {
-						removeAliases.put(alias, aliasCmd);
-					}
-				}
-			} else {
-				cmd.removeChildren(owner);
-			}
-		}
-		for (Map.Entry<String, Command> entry : removeAliases.entrySet()) {
-			entry.getValue().removeAlias(entry.getKey());
-		}
+	public Command addPermission(String... perm) {
+		permissions.addAll(Arrays.asList(perm));
 		return this;
 	}
 
 	@Override
-	public Command removeAlias(String name) {
-		if (isLocked()) {
-			return this;
-		}
-		aliases.remove(name);
-		if (parent != null) {
-			parent.updateAliases(this);
-		}
+	public Command removePermission(String... perm) {
+		permissions.removeAll(Arrays.asList(perm));
 		return this;
 	}
 
 	@Override
-	public boolean lock(Named owner) {
-		if (owner == this.owner) {
-			locked = true;
+	public boolean hasPermission(CommandSource source) {
+		if (permissions.isEmpty()) {
 			return true;
 		}
-		return false;
-	}
 
-	@Override
-	public boolean unlock(Named owner) {
-		if (owner == this.owner) {
-			locked = false;
-			return true;
-		}
-		return false;
-	}
-
-	@Override
-	public boolean isLocked() {
-		return locked;
-	}
-
-	@Override
-	public boolean isOwnedBy(Named owner) {
-		return this.owner == owner;
-	}
-
-	@Override
-	public String getOwnerName() {
-		return this.owner.getName();
-	}
-
-	@Override
-	public boolean updateAliases(Command child) {
-		boolean changed = false;
-		List<String> names = child.getNames();
-		synchronized (children) {
-			for (Iterator<Map.Entry<String, Command>> i = children.entrySet().iterator(); i.hasNext();) {
-				Map.Entry<String, Command> entry = i.next();
-				if (entry.getValue() != child) {
-					continue;
-				}
-				if (!names.contains(entry.getKey())) {
-					i.remove();
-					changed = true;
-				}
-			}
-			for (String alias : names) {
-				if (!children.containsKey(alias)) {
-					children.put(alias, child);
-				}
-			}
-			return changed;
-		}
-	}
-
-	@Override
-	public boolean hasChild(String name) {
-		return children.containsKey(name);
-	}
-
-	@Override
-	public Command setParent(Command parent) {
-		if (this.parent == null) {
-			this.parent = parent;
-			parent.updateAliases(this);
-		}
-		return this;
-	}
-
-	@Override
-	public Command setRawExecutor(RawCommandExecutor rawExecutor) {
-		if (!isLocked()) {
-			this.rawExecutor = rawExecutor;
-		}
-		return this;
-	}
-
-	@Override
-	public Command setPermissions(boolean requireAll, String... permissions) {
-		requireAllPermissions = requireAll;
-		this.permissions = permissions;
-		return this;
-	}
-
-	@Override
-	public boolean hasPermission(CommandSource sender) {
-		if (permissions == null || permissions.length < 1) {
-			return true;
-		}
-		boolean success = requireAllPermissions;
+		boolean success = requiresAllPermissions;
 		for (String perm : permissions) {
-			if (requireAllPermissions) {
-				success &= sender.hasPermission(perm);
+			if (requiresAllPermissions) {
+				success &= source.hasPermission(perm);
 			} else {
-				success |= sender.hasPermission(perm);
+				success |= source.hasPermission(perm);
 			}
 		}
 		return success;
 	}
 
 	@Override
-	public Command setArgBounds(int min, int max) {
-		if (min >= 0) {
-			minArgLength = min;
-		}
-		maxArgLength = max;
+	public boolean requiresAllPermissions() {
+		return requiresAllPermissions;
+	}
+
+	@Override
+	public Command setRequiresAllPermissions(boolean requiresAllPermissions) {
+		this.requiresAllPermissions = requiresAllPermissions;
 		return this;
 	}
-	
+
 	@Override
-	public int getMaxArgBounds() {
-		return this.maxArgLength;
-	}
-	
-	@Override
-	public int getMinArgBounds() {
-		return this.maxArgLength;
+	public Command setArgumentBounds(int min, int max) {
+		minArgs = min;
+		maxArgs = max;
+		return this;
 	}
 
 	@Override
-	public CompletionResponse getCompletion(CompletionRequest input) {
-		return getCompletion(input, 0);
+	public int getMaxArguments() {
+		return maxArgs;
 	}
 
 	@Override
-	public CompletionResponse getCompletion(CompletionRequest input, int baseIndex) {
-		if (children.size() > 0 && baseIndex < input.getSections().size() - 1) {
-			Command child = getChild(input.getSections().get(baseIndex + 1).getPlainString());
-			if (child != null) {
-				return child.getCompletion(input, baseIndex + 1);
-			} else {
-				return new CompletionResponse(true, input, getMatchingChildren(input.getSections().get(baseIndex + 1).getPlainString()));
-			}
+	public Command setMaxArguments(int max) {
+		maxArgs = max;
+		return this;
+	}
+
+	@Override
+	public int getMinArguments() {
+		return minArgs;
+	}
+
+	@Override
+	public Command setMinArguments(int min) {
+		minArgs = min;
+		return this;
+	}
+
+	@Override
+	public int getId() {
+		return id;
+	}
+
+	@Override
+	public String getName() {
+		return name;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof SimpleCommand)) {
+			return false;
 		}
-		// TODO: Return completion responses for the usage (could be done in CommandExecutor - Typed arguments would be nice for this)
-		return null;
-	}
 
-	public List<ChatArguments> getMatchingChildren(final String plainString) {
-		List<ChatArguments> responses = new ArrayList<ChatArguments>();
-		List<String> names = new ArrayList<String>();
-
-		names.addAll(
-				Collections2.filter(getChildNames(), new Predicate<String>() {
-					@Override
-					public boolean apply(@Nullable String s) {
-						return s != null
-								&& !s.equalsIgnoreCase(plainString)
-								&& s.toLowerCase().startsWith(plainString.toLowerCase());
-					}
-				}));
-
-		Collections.sort(names, new Comparator<String>() {
-			@Override
-			public int compare(String a, String b) {
-				return StringUtil.getLevenshteinDistance(plainString, b) - StringUtil.getLevenshteinDistance(plainString,  a);
-			}
-		});
-		return responses;
+		SimpleCommand other = (SimpleCommand) obj;
+		return new EqualsBuilder()
+				.append(id, other.id)
+				.append(name, other.name)
+				.build();
 	}
 
 	@Override
-	public Command getParent() {
-		return this.parent;
+	public String toString() {
+		return new ToStringBuilder(SpoutToStringStyle.INSTANCE)
+				.append("id", id)
+				.append("name", name)
+				.build();
+	}
+
+	@Override
+	public int hashCode() {
+		return new HashCodeBuilder()
+				.append(name)
+				.append(id)
+				.build();
 	}
 }

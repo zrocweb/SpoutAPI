@@ -24,25 +24,23 @@
  * License and see <http://spout.in/licensev1> for the full license, including
  * the MIT license.
  */
-package org.spout.api.chat.style.fallback;
+package org.spout.api.command.filter;
 
-import java.util.Random;
-
-import org.spout.api.chat.style.StyleFormatter;
+import org.spout.api.command.Command;
+import org.spout.api.command.CommandArguments;
+import org.spout.api.command.CommandSource;
+import org.spout.api.exception.CommandException;
 
 /**
- * Replaces every character in the provided string with one of {@link #CONCEAL_CHARS}
+ * Filters certain criteria before a command's final execution.
  */
-public class ConcealStyleFormatter implements StyleFormatter {
-	public static final String CONCEAL_CHARS = "#*%!$";
-	private static final Random RANDOM = new Random();
-
-	@Override
-	public String format(String text) {
-		StringBuilder builder = new StringBuilder(text.length());
-		for (int i = 0; i < text.length(); ++i) {
-			builder.append(CONCEAL_CHARS.charAt(RANDOM.nextInt(CONCEAL_CHARS.length())));
-		}
-		return builder.toString();
-	}
+public interface CommandFilter {
+	/**
+	 * Returns true if the execution should continue.
+	 *
+	 * @param source of command
+	 * @param args command arguments
+	 * @return true if execution should continue
+	 */
+	public void validate(Command command, CommandSource source, CommandArguments args) throws CommandException;
 }

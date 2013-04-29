@@ -32,9 +32,6 @@ import java.util.List;
 
 import org.spout.api.Client;
 import org.spout.api.Spout;
-import org.spout.api.chat.ChatArguments;
-import org.spout.api.chat.style.ColorChatStyle;
-import org.spout.api.chat.style.ResetChatStyle;
 import org.spout.api.component.type.WidgetComponent;
 import org.spout.api.gui.render.RenderPart;
 import org.spout.api.gui.render.RenderPartPack;
@@ -47,7 +44,7 @@ import org.spout.api.render.Font;
  * Represents an element that contains characters.
  */
 public class LabelComponent extends WidgetComponent {
-	private static final DefaultedKey<ChatArguments> KEY_TEXT = new DefaultedKeyImpl<ChatArguments>("text", new ChatArguments("(your text here)"));
+	private static final DefaultedKey<String> KEY_TEXT = new DefaultedKeyImpl<String>("text", "(your text here)");
 	private static final DefaultedKey<Color> KEY_COLOR = new DefaultedKeyImpl<Color>("text-color", Color.black);
 	private static final DefaultedKey<Font> KEY_FONT = new DefaultedKeyImpl<Font>("font", (Font) Spout.getFilesystem().getResource("font://Spout/fonts/ubuntu/Ubuntu-M.ttf"));
 
@@ -72,34 +69,24 @@ public class LabelComponent extends WidgetComponent {
 		float screenWidth = ((Client) Spout.getEngine()).getResolution().getX();
 		float screenHeight = ((Client) Spout.getEngine()).getResolution().getY();
 
-		for (Object arg : getText().getArguments()) {
-			if (arg instanceof String) {
-				String txt = (String) arg;
-				for (int i = 0; i < txt.length(); i++) {
-					char c = txt.charAt(i);
-					if (c == ' ') {
-						xCursor += font.getSpaceWidth() / screenWidth;
-					} else if (c == '\n') {
-						xCursor = 0;
-						yCursor -= font.getCharHeight() / screenHeight;
-					} else {
-						java.awt.Rectangle r = font.getPixelBounds(c);
+		for (char c : getText().toCharArray()) {
+			if (c == ' ') {
+				xCursor += font.getSpaceWidth() / screenWidth;
+			} else if (c == '\n') {
+				xCursor = 0;
+				yCursor -= font.getCharHeight() / screenHeight;
+			} else {
+				java.awt.Rectangle r = font.getPixelBounds(c);
 
-						RenderPart part = new RenderPart();
-						part.setColor(color);
-						part.setSprite(new Rectangle(xCursor, yCursor, (float) r.width / screenWidth, h / screenHeight));
-						part.setSource(new Rectangle(r.x / w, 0f, r.width / w, 1f));
-						part.setZIndex(0);
+				RenderPart part = new RenderPart();
+				part.setColor(color);
+				part.setSprite(new Rectangle(xCursor, yCursor, (float) r.width / screenWidth, h / screenHeight));
+				part.setSource(new Rectangle(r.x / w, 0f, r.width / w, 1f));
+				part.setZIndex(0);
 
-						xCursor += (float) font.getAdvance(c) / screenWidth;
+				xCursor += (float) font.getAdvance(c) / screenWidth;
 
-						textPack.add(part);
-					}
-				}
-			} else if (arg instanceof ColorChatStyle) {
-				color = ((ColorChatStyle) arg).getColor();
-			} else if (arg instanceof ResetChatStyle) {
-				color = Color.black;
+				textPack.add(part);
 			}
 		}
 
@@ -131,7 +118,7 @@ public class LabelComponent extends WidgetComponent {
 	 *
 	 * @return text on label
 	 */
-	public ChatArguments getText() {
+	public String getText() {
 		return getData().get(KEY_TEXT);
 	}
 
@@ -140,7 +127,7 @@ public class LabelComponent extends WidgetComponent {
 	 *
 	 * @param text on label
 	 */
-	public void setText(ChatArguments text) {
+	public void setText(String text) {
 		getData().put(KEY_TEXT, text);
 		getOwner().update();
 	}
@@ -149,16 +136,16 @@ public class LabelComponent extends WidgetComponent {
 	 * Clears all text on the label.
 	 */
 	public void clear() {
-		setText(new ChatArguments(""));
+		setText("");
 	}
 
 	/**
 	 * Removes the last character.
 	 */
 	public void backspace() {
-		String str = getText().getPlainString();
+		String str = getText();
 		if (!str.isEmpty()) {
-			setText(new ChatArguments(str.substring(0, str.length() - 1)));
+			setText(str.substring(0, str.length() - 1));
 		}
 	}
 
@@ -168,7 +155,7 @@ public class LabelComponent extends WidgetComponent {
 	 * @param c character to add
 	 */
 	public void append(char c) {
-		setText(new ChatArguments(getText().append(c)));
+		setText(getText() + c);
 	}
 
 	/**
@@ -177,7 +164,7 @@ public class LabelComponent extends WidgetComponent {
 	 * @param str string to add
 	 */
 	public void append(String str) {
-		setText(new ChatArguments(getText().append(str)));
+		setText(getText() + str);
 	}
 
 	/**

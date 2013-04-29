@@ -24,39 +24,33 @@
  * License and see <http://spout.in/licensev1> for the full license, including
  * the MIT license.
  */
-package org.spout.api.chat;
+package org.spout.api.command.filter;
+
+import org.spout.api.command.Command;
+import org.spout.api.command.CommandArguments;
+import org.spout.api.command.CommandSource;
+import org.spout.api.exception.CommandException;
 
 /**
- * A storage class for a source ChatArguments to prevent users from modifying the original ChatArguments and its placeholders
+ * Filters a command execution
+ *
+ * @param <T> type of command source to check for
  */
-public class ChatTemplate {
-	private final ChatArguments source;
+public class CommandSourceFilter<T extends CommandSource> implements CommandFilter {
+	private final Class<T> type;
 
-	public ChatTemplate(ChatArguments source) {
-		this.source = source;
+	public CommandSourceFilter(Class<T> type) {
+		this.type = type;
 	}
 
-	public ChatArguments getArguments() {
-		return new ChatArguments(source.getArguments());
+	public Class<T> getType() {
+		return type;
 	}
 
-	/**
-	 * Passes through to {@link ChatArguments#fromFormatString(String)} to create a new ChatTemplate from a format string
-	 * @param formatString The format string
-	 * @return The new ChatTemplate object
-	 * @see ChatArguments#fromFormatString(String)
-	 */
-	public static ChatTemplate fromFormatString(String formatString) {
-		return new ChatTemplate(ChatArguments.fromFormatString(formatString));
-	}
-
-	/**
-	 * Converts this ChatTemplate to a format string by using {@link ChatArguments#toFormatString()}
-	 * The toFormatString() method is called on the original ChatArguments passed in.
-	 * @return The format string
-	 * @see ChatArguments#toFormatString()
-	 */
-	public String toFormatString() {
-		return source.toFormatString();
+	@Override
+	public void validate(Command command, CommandSource source, CommandArguments args) throws CommandException {
+		if (!source.getClass().equals(type)) {
+			throw new CommandException("You must be a " + type.getSimpleName() + " to execute this command.");
+		}
 	}
 }

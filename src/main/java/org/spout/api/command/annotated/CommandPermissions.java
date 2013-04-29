@@ -35,10 +35,21 @@ import java.lang.annotation.Target;
  * Command methods that require a specific permissions node should be annotated
  * with this.
  */
-@Target({ElementType.METHOD, ElementType.TYPE})
+@Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CommandPermissions {
+	/**
+	 * Returns all the permissions associated with this command.
+	 *
+	 * @return all permissions
+	 */
 	public String[] value();
 
+	/**
+	 * Returns true if a {@link org.spout.api.command.CommandSource} requires
+	 * all the permissions specified by {@link #value()} to run.
+	 *
+	 * @return true if requires all permissions
+	 */
 	public boolean requireAll() default false;
 }

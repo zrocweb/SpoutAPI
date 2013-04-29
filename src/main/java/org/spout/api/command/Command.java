@@ -29,357 +29,238 @@ package org.spout.api.command;
 import java.util.List;
 import java.util.Set;
 
-import org.spout.api.chat.ChatArguments;
-import org.spout.api.chat.ChatSection;
-import org.spout.api.chat.completion.CompletionRequest;
-import org.spout.api.chat.completion.CompletionResponse;
-import org.spout.api.chat.completion.Completor;
+import org.spout.api.command.filter.CommandFilter;
 import org.spout.api.exception.CommandException;
 import org.spout.api.util.Named;
 
 /**
- * Provides support for setting up commands for Plugins
- *
- * This uses chaining to allow concise setup of commands
- *
- * Commands could be registered using the following structure.
- *
- * <pre>
- * Game.getCommandRoot().sub(&quot;preferredname&quot;).alias(&quot;alias1&quot;, &quot;alias2&quot;).help(&quot;This is the main command for MyPlugin&quot;).executor(myExecutor).sub(&quot;subcommand&quot;).help(&quot;This is a sub command of main command&quot;).executor(myExecutor).closeSub().closeSub();
- * </pre>
+ * Represents a command sent by a {@link CommandSource}.
  */
-public interface Command extends Completor {
+public interface Command extends Named {
 	/**
-	 * Creates a command and adds it as a sub-command to the active Command.
+	 * Executes the command in the executor it is currently set to.
 	 *
-	 * The sub-command is linked to the given String, made the active command
-	 * and added to the top of the Command stack
-	 *
-	 * @param primaryName the name to link sub-command to
-	 * @return the new sub-command
+	 * @param source that sent the command
+	 * @param args command arguments
+	 * @throws CommandException if the command executor is null or if
+	 * {@link Executor#execute(CommandSource, Command, CommandArguments)}
+	 * throws a CommandException.
 	 */
-	public Command addSubCommand(Named owner, String primaryName);
+	public void execute(CommandSource source, String... args) throws CommandException;
 
 	/**
-	 * Registers sub commands created by a {@link CommandRegistrationsFactory}
+	 * Executes the command in the executor it is currently set to.
 	 *
-	 * @param owner The owner of these commands
-	 * @param object The {@link T} used by the CommandRegistrationFactory to
-	 *			register commands.
-	 * @param factory The {@link CommandRegistrationsFactory} used to convert
-	 *			{@code object} into a {@link java.util.List} of
-	 *			{@link Command}s
-	 * @param <T> The type that {@code factory} accepts
-	 * @return
+	 * @param source that sent the command
+	 * @param args command arguments
+	 * @throws CommandException if the command executor is null or if
+	 * {@link Executor#execute(CommandSource, Command, CommandArguments)}
+	 * throws a CommandException.
 	 */
-	public <T> Command addSubCommands(Named owner, T object, CommandRegistrationsFactory<T> factory);
+	public void execute(CommandSource source, CommandArguments args) throws CommandException;
 
 	/**
-	 * Completes creation of a sub-command. There should be a matching call of
-	 * this method for every call to addSubCommand.
+	 * Returns the {@link Executor} associated with this command.
 	 *
-	 * The topmost Command on the stack is removed and the next highest becomes
-	 * the active command.
-	 *
-	 * @return the new active command or null if the stack was empty
+	 * @return command's executor
 	 */
-	public Command closeSubCommand();
+	public Executor getExecutor();
 
 	/**
-	 * Executes a command based on the provided arguments.
+	 * Sets the {@link Executor} associated with this command.
 	 *
-	 * The base index is equal to the number of arguments that have already been
-	 * processed by super commands.
-	 *
-	 * @param source the {@link CommandSource} that sent this command.
-	 * @param name The alias used to look this command up
-	 * @param args the command arguments
-	 * @param baseIndex the arguments that have already been processed by
-	 * @param fuzzyLookup Whether to use levenschtein distance while looking up
-	 *			commands.
-	 * @throws org.spout.api.exception.CommandException when invalid arguments were passed to the command or an error occurred
+	 * @param executor to set
+	 * @return this command
 	 */
-	public void execute(CommandSource source, String name, List<ChatSection> args, int baseIndex, boolean fuzzyLookup) throws CommandException;
+	public Command setExecutor(Executor executor);
 
 	/**
-	 * Executes a command with the provided arguments
-	 * @param source The {@link CommandSource} that executed this command
-	 * @param name The alias used to look this command up
-	 * @param args The arguments provided
-	 * @param fuzzyLookup Whether to use levenschtein distance while looking up
-	 *			commands.
-	 * @return Whether execution was successful.
+	 * Returns the filter to be run before execution.
+	 *
+	 * @return filter to run
 	 */
-	public boolean process(CommandSource source, String name, ChatArguments args, boolean fuzzyLookup);
+	public Set<CommandFilter> getFilters();
 
 	/**
-	 * Adds an alias to the active Command.
+	 * Sets the filter to be run before execution.
 	 *
-	 * The first free name will be used for the command name. If no alias is
-	 * free, then the command will not be registered.
-	 *
-	 * Commands can always be accessed using the "plugin-name:primary-name".
-	 *
-	 * @param names the aliases
-	 * @return the active Command
+	 * @param filter to run
+	 * @return this command
 	 */
-	public Command addAlias(String... names);
+	public Command addFilter(CommandFilter... filter);
 
 	/**
-	 * Sets the help string for the active Command.
+	 * Returns a set of all the command's children.
 	 *
-	 * If this is called more than once for a Command, subsequent calls will
-	 * overwrite previous calls.
-	 *
-	 * @param help the help string
-	 * @return the active Command
+	 * @return children commands
 	 */
-	public Command setHelp(String help);
+	public Set<Command> getChildren();
 
 	/**
-	 * Sets the usage string for the active Command.
+	 * Returns a child of this command with the specified. Will create a new
+	 * unless otherwise specified.
 	 *
-	 * If this is called more than once for a Command, subsequent calls will
-	 * overwrite previous calls.
-	 *
-	 * @param usage the usage string
-	 * @return the active Command
+	 * @param name name of command
+	 * @param createIfAbsent true if should create command if non-existent
+	 * @return new child or existing child
 	 */
-	public Command setUsage(String usage);
+	public Command getChild(String name, boolean createIfAbsent);
 
 	/**
-	 * Sets the Executor for the active Command.
+	 * Returns a child of this command with the specified. Will create a new
+	 * unless otherwise specified.
 	 *
-	 * If this is called more than once for a Command, subsequent calls will
-	 * overwrite previous calls.
-	 *
-	 * @param executor the help string
-	 * @return the active Command
+	 * @param name name of command
+	 * @return new child or existing child
 	 */
-	public Command setExecutor(CommandExecutor executor);
+	public Command getChild(String name);
+
 
 	/**
-	 * Gets the executor for the active Command if found, null otherwise.
-	 * @return the executor
-	 */
-	public CommandExecutor getExecutor();
-
-	/**
-	 * Adds flags to this Command's list of allowed flags. Flags are given in
-	 * the format of a String containing the allowed flag characters, where
-	 * value flag characters are followed by a :.
+	 * Returns all the names that the command is recognized under.
 	 *
-	 * @param flags The flags to add to this command's list of allowed flags.
-	 * @return The active command
+	 * @return list of names the command is called
 	 */
-	public Command addFlags(String flags);
+	public List<String> getAliases();
 
 	/**
-	 * Returns this command's help. The help may contain multiple lines, split by \n.
-	 * @return this command's help
+	 * Adds a name that the command is recognized under.
+	 *
+	 * @param alias to add
+	 * @return this command
+	 */
+	public Command addAlias(String... alias);
+
+	/**
+	 * Removes the names that a command is recognized under.
+	 *
+	 * @param alias to remove
+	 * @return this command
+	 */
+	public Command removeAlias(String... alias);
+
+	/**
+	 * Returns the command's help information.
+	 *
+	 * @return help info
 	 */
 	public String getHelp();
 
 	/**
-	 * Returns the usage for this command with {@link #getPreferredName()}
-	 * as the only element in the input array and a baseIndex of zero
-	 * @return The usage for this command
+	 * Sets the command's help specification.
+	 *
+	 * @param help to display
+	 * @return this command
+	 */
+	public Command setHelp(String help);
+
+	/**
+	 * Returns the correct usage for this plugin.
+	 *
+	 * @return command usage
 	 */
 	public String getUsage();
 
 	/**
-	 * Gets the usage message for the command.
+	 * Sets the Command's correct usage
 	 *
-	 * @param name The name used to execute this command
-	 * @param args The arguments passed to this command
-	 * @param baseIndex The index where command arguments begin in input
-	 * @return the command's usage message
+	 * @param usage of command
+	 * @return this command
 	 */
-	public String getUsage(String name, List<ChatSection> args, int baseIndex);
+	public Command setUsage(String usage);
 
 	/**
-	 * Gets the command's preferred name
+	 * Returns all the permissions associated with this command.
 	 *
-	 * @return the preferred name
+	 * @return all permissions
 	 */
-	public String getPreferredName();
+	public Set<String> getPermissions();
 
 	/**
+	 * Adds permissions to the command.
 	 *
-	 * @return all children commands nested with this command.
+	 * @param perm to add
+	 * @return this command
 	 */
-	public Set<Command> getChildCommands();
+	public Command addPermission(String... perm);
 
 	/**
+	 * Removes permissions from this command.
 	 *
-	 * @return the names of all children commands registered with this command.
+	 * @param perm to remove
+	 * @return this command
 	 */
-	public Set<String> getChildNames();
+	public Command removePermission(String... perm);
 
 	/**
-	 * Returns the registered names for this command. This includes the primary
-	 * name and aliases.
+	 * Returns true if the specified source has permissions to execute this
+	 * command.
 	 *
-	 * @return the registered names for this command.
-	 */
-	public List<String> getNames();
-
-	/**
-	 * Removes this command from the list of children.
-	 *
-	 * @param cmd The command to remove
-	 * @return The active Command
-	 */
-	public Command removeChild(Command cmd);
-
-	/**
-	 * Removes a child command named {@code name} from this command
-	 *
-	 * @param name The name to remove
-	 * @return The active command
-	 */
-	public Command removeChild(String name);
-
-	/**
-	 * Removes children from this command who are owned by {@code owner}
-	 * @param owner The owner to remove the children of
-	 * @return The active command
-	 */
-	public Command removeChildren(Named owner);
-
-	/**
-	 * Removes an alias
-	 *
-	 * @param name The name of the alias to remove.
-	 * @return the active Command
-	 */
-	public Command removeAlias(String name);
-
-	/**
-	 * Locks the command to prevent it from being modified by other owners.
-	 *
-	 * @param owner The owner of this command.
-	 * @return Whether this operation was successful
-	 */
-	public boolean lock(Named owner);
-
-	/**
-	 * Unlocks this command so that it can be modified again.
-	 *
-	 * @param owner The owner of this command to attempt to unlock it.
-	 * @return Whether this operation was successful
-	 */
-	public boolean unlock(Named owner);
-
-	/**
-	 * @return whether this command is locked.
-	 */
-	public boolean isLocked();
-
-	/**
-	 * Check if {@code owner} owns this command
-	 * @param owner The {@link Named} to check
-	 * @return Whether owner is the owner
-	 */
-	public boolean isOwnedBy(Named owner);
-
-	/**
-	 * Returns the name of this command's owner
-	 * @return The name of this command's owner
-	 */
-	public String getOwnerName();
-
-	/**
-	 * Updates the aliases list for this child command
-	 *
-	 * @param child The child command to update.
-	 * @return Whether any aliases were changed.
-	 */
-	public boolean updateAliases(Command child);
-
-	/**
-	 * @param name The name to check
-	 * @return whether this Command has a child named {@code name}
-	 */
-	public boolean hasChild(String name);
-
-	/**
-	 * Sets {@code parent} as this Command's parent if this command does not
-	 * already have a parent
-	 *
-	 * @param parent The command to set as this command's parent command.
-	 * @return The active command.
-	 */
-	public Command setParent(Command parent);
-
-	/**
-	 * Sets a raw command executor that overrides Spout's built-in nested
-	 * command and command flags handling.
-	 *
-	 * @param rawExecutor The command's raw executor.
-	 * @return The active command
-	 */
-	public Command setRawExecutor(RawCommandExecutor rawExecutor);
-
-	/**
-	 * Sets the permissions required to use this command.
-	 *
-	 * @param requireAll Whether to require all of the listed permissions to
-	 *			execute the command.
-	 * @param permissions The permissions required
-	 * @return The active command
-	 */
-	public Command setPermissions(boolean requireAll, String... permissions);
-
-	/**
-	 * Sets the arg limits for a command.
-	 *
-	 * @param min Minimum arg length. Cannot be less than 0.
-	 * @param max Maximum argument length. -1 for unlimited
-	 * @return The active command
-	 */
-	public Command setArgBounds(int min, int max);
-	
-	/**
-	 * Gets the minimal the arg limit for a command.
-	 *
-	 * @return The minimal arg limit
-	 */
-	public int getMinArgBounds();
-	
-	/**
-	 * Gets the maximal the arg limit for a command.
-	 *
-	 * @return The maximal arg limit
-	 */
-	public int getMaxArgBounds();
-
-	/**
-	 * Return a child of this command registered with {@code name}
-	 * @param name The name of the child command requested
-	 * @return The child command, or null if it does not exist
-	 */
-	public Command getChild(String name);
-
-	/**
-	 * Checks whether {@code source} has the necessary permissions to use this command,
-	 * using the same method used for executing this command
-	 * @param source The sender of this command
-	 * @return Whether {@code source} can use this command
+	 * @param source to check
+	 * @return true if specified source has permission
 	 */
 	public boolean hasPermission(CommandSource source);
 
 	/**
-	 * Get the completions for a specified command.
-	 * @param request The requset for completion
-	 * @param baseIndex The base arg index
-	 * @return The responses to complete. If this is a client and a request to the server is needed, return null
+	 * Returns true if this command requires all the permissions specified by
+	 * {@link #getPermissions()} to run for a {@link CommandSource}.
+	 *
+	 * @return true if command requires all permissions
 	 */
-	public CompletionResponse getCompletion(CompletionRequest request, int baseIndex);
-	
+	public boolean requiresAllPermissions();
+
 	/**
-	 * Get the command's parent.
-	 * @return The command's parent, or null if there isn't.
+	 * Sets if this command requires all the permissions specified by
+	 * {@link #getPermissions()} to run for a {@link CommandSource}.
+	 *
+	 * @param requiresAllPermissions true if all perms are reuquired
+	 * @return this command
 	 */
-	public Command getParent();
+	public Command setRequiresAllPermissions(boolean requiresAllPermissions);
+
+	/**
+	 * Sets the minimum and maximum arguments in which this command can operate.
+	 *
+	 * @param min minimum amount of arguments
+	 * @param max maximum amount of arguments (-1 for no limit)
+	 * @return this command
+	 */
+	public Command setArgumentBounds(int min, int max);
+
+	/**
+	 * Returns the maximum amount of arguments for this command.
+	 *
+	 * @return maximum amount of arguments
+	 */
+	public int getMaxArguments();
+
+	/**
+	 * Sets the maximum arguments for this command.
+	 *
+	 * @param max maximum amount of arguments (-1 for no limit)
+	 * @return this command
+	 */
+	public Command setMaxArguments(int max);
+
+	/**
+	 * Returns the minimum amount of arguments for this command.
+	 *
+	 * @return minimum amount of arguments.
+	 */
+	public int getMinArguments();
+
+	/**
+	 * Sets the minimum arguments for this command.
+	 *
+	 * @param min minimum amount of arguments
+	 * @return this command
+	 */
+	public Command setMinArguments(int min);
+
+	/**
+	 * Returns this command's unique identifier.
+	 *
+	 * @return identifier
+	 */
+	public int getId();
 }

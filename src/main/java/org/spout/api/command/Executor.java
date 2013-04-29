@@ -24,29 +24,21 @@
  * License and see <http://spout.in/licensev1> for the full license, including
  * the MIT license.
  */
-package org.spout.api.command.annotated;
+package org.spout.api.command;
 
-import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.List;
+import org.spout.api.exception.CommandException;
 
-import org.spout.api.command.CommandSource;
-
-public class SimpleAnnotatedCommandExecutorFactory implements AnnotatedCommandExecutorFactory {
-	@Override
-	public AnnotatedCommandExecutor getAnnotatedCommandExecutor(Object instance, Method method) {
-		return new SimpleAnnotatedCommandExecutor(instance, method);
-	}
-
-	public static class SimpleAnnotatedCommandExecutor extends AnnotatedCommandExecutor {
-
-		public SimpleAnnotatedCommandExecutor(Object instance, Method method) {
-			super(instance, method);
-		}
-
-		@Override
-		public List<Object> getAdditionalArgs(CommandSource source, org.spout.api.command.Command command) {
-			return Collections.emptyList();
-		}
-	}
+/**
+ * Represents something that handles {@link Command} execution.
+ */
+public interface Executor {
+	/**
+	 * Executes the command as per the implementation's specification.
+	 *
+	 * @param source of command
+	 * @param command to handle
+	 * @param args arguments of the command
+	 * @throws CommandException if there is a problem with execution
+	 */
+	public void execute(CommandSource source, Command command, CommandArguments args) throws CommandException;
 }
